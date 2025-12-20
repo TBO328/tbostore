@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type Language = 'en' | 'ar';
 
@@ -76,9 +77,18 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t, isRTL }}>
-      <div dir={isRTL ? 'rtl' : 'ltr'}>
-        {children}
-      </div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={language}
+          dir={isRTL ? 'rtl' : 'ltr'}
+          initial={{ opacity: 0, x: isRTL ? -20 : 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: isRTL ? 20 : -20 }}
+          transition={{ duration: 0.3, ease: 'easeInOut' }}
+        >
+          {children}
+        </motion.div>
+      </AnimatePresence>
     </LanguageContext.Provider>
   );
 };
