@@ -8,46 +8,9 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import AnimatedSection from '@/components/AnimatedSection';
 import ProductCard from '@/components/ProductCard';
+import { products } from '@/data/products';
 
-const featuredProducts = [
-  {
-    id: 1,
-    name: 'Wireless Pro Headphones',
-    nameAr: 'سماعات لاسلكية برو',
-    price: 299,
-    originalPrice: 399,
-    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80',
-    category: 'Electronics',
-    isNew: true,
-  },
-  {
-    id: 2,
-    name: 'Smart Watch Ultra',
-    nameAr: 'ساعة ذكية ألترا',
-    price: 449,
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80',
-    category: 'Electronics',
-    isBestSeller: true,
-  },
-  {
-    id: 3,
-    name: 'Premium Leather Jacket',
-    nameAr: 'جاكيت جلد فاخر',
-    price: 189,
-    originalPrice: 249,
-    image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500&q=80',
-    category: 'Fashion',
-    isNew: true,
-  },
-  {
-    id: 4,
-    name: 'Designer Sunglasses',
-    nameAr: 'نظارات شمسية مصممة',
-    price: 159,
-    image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&q=80',
-    category: 'Accessories',
-  },
-];
+const featuredProducts = products.slice(0, 4);
 
 const reviews = [
   {

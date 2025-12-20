@@ -10,18 +10,7 @@ import Footer from '@/components/Footer';
 import AnimatedSection from '@/components/AnimatedSection';
 import ProductCard from '@/components/ProductCard';
 import { toast } from 'sonner';
-
-// Sample products data
-const products = [
-  { id: 1, name: 'Quantum Wireless Headphones', nameAr: 'سماعات كوانتوم اللاسلكية', price: 299, originalPrice: 399, image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500', category: 'Electronics', categoryAr: 'إلكترونيات', isNew: true, description: 'Experience crystal-clear audio with our premium wireless headphones. Featuring advanced noise cancellation technology, 40-hour battery life, and premium comfort for extended listening sessions.', descriptionAr: 'استمتع بصوت نقي مع سماعاتنا اللاسلكية المتميزة. تتميز بتقنية إلغاء الضوضاء المتقدمة وعمر بطارية يصل إلى 40 ساعة وراحة فائقة للاستماع لفترات طويلة.' },
-  { id: 2, name: 'Neon Smart Watch', nameAr: 'ساعة نيون الذكية', price: 499, originalPrice: 599, image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500', category: 'Electronics', categoryAr: 'إلكترونيات', isBestSeller: true, description: 'Stay connected with style. Our smart watch features health monitoring, GPS tracking, water resistance up to 50 meters, and a stunning AMOLED display.', descriptionAr: 'ابق على اتصال بأناقة. تتميز ساعتنا الذكية بمراقبة الصحة وتتبع GPS ومقاومة الماء حتى 50 مترًا وشاشة AMOLED مذهلة.' },
-  { id: 3, name: 'Cyber Gaming Keyboard', nameAr: 'لوحة مفاتيح سايبر للألعاب', price: 189, image: 'https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=500', category: 'Electronics', categoryAr: 'إلكترونيات', isNew: true, description: 'Dominate your games with our mechanical gaming keyboard. RGB backlighting, programmable macros, and ultra-responsive switches for competitive gaming.', descriptionAr: 'تفوق في ألعابك مع لوحة المفاتيح الميكانيكية للألعاب. إضاءة RGB خلفية وماكرو قابل للبرمجة ومفاتيح فائقة الاستجابة للألعاب التنافسية.' },
-  { id: 4, name: 'Pulse Wireless Earbuds', nameAr: 'سماعات بولس اللاسلكية', price: 149, originalPrice: 199, image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=500', category: 'Electronics', categoryAr: 'إلكترونيات', isBestSeller: true, description: 'Premium true wireless earbuds with active noise cancellation, transparency mode, and 8 hours of playback time. Perfect for music lovers on the go.', descriptionAr: 'سماعات أذن لاسلكية متميزة مع إلغاء الضوضاء النشط ووضع الشفافية و8 ساعات من وقت التشغيل. مثالية لمحبي الموسيقى أثناء التنقل.' },
-  { id: 5, name: 'Holographic Backpack', nameAr: 'حقيبة ظهر هولوغرافية', price: 79, image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500', category: 'Fashion', categoryAr: 'أزياء', isNew: true, description: 'Stand out with our unique holographic backpack. Water-resistant material, multiple compartments, and adjustable straps for ultimate comfort.', descriptionAr: 'تميز مع حقيبة الظهر الهولوغرافية الفريدة. مادة مقاومة للماء وحجرات متعددة وأحزمة قابلة للتعديل للراحة القصوى.' },
-  { id: 6, name: 'LED Gaming Mouse', nameAr: 'فأرة ألعاب LED', price: 89, originalPrice: 119, image: 'https://images.unsplash.com/photo-1527814050087-3793815479db?w=500', category: 'Electronics', categoryAr: 'إلكترونيات', description: 'Precision gaming mouse with 16000 DPI sensor, customizable RGB lighting, and ergonomic design for marathon gaming sessions.', descriptionAr: 'فأرة ألعاب دقيقة مع مستشعر 16000 DPI وإضاءة RGB قابلة للتخصيص وتصميم مريح لجلسات الألعاب الطويلة.' },
-  { id: 7, name: 'Minimalist Wallet', nameAr: 'محفظة مينيماليست', price: 49, image: 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=500', category: 'Accessories', categoryAr: 'إكسسوارات', isBestSeller: true, description: 'Slim, sleek wallet crafted from premium leather. RFID blocking technology keeps your cards safe while maintaining a minimalist aesthetic.', descriptionAr: 'محفظة رفيعة وأنيقة مصنوعة من جلد فاخر. تقنية حجب RFID تحافظ على أمان بطاقاتك مع الحفاظ على المظهر البسيط.' },
-  { id: 8, name: 'Smart Home Speaker', nameAr: 'مكبر صوت المنزل الذكي', price: 199, originalPrice: 249, image: 'https://images.unsplash.com/photo-1589003077984-894e133dabab?w=500', category: 'Home Goods', categoryAr: 'مستلزمات منزلية', isNew: true, description: 'Transform your home with our AI-powered smart speaker. Premium 360° sound, voice control, and seamless integration with your smart home devices.', descriptionAr: 'حول منزلك مع مكبر الصوت الذكي المدعوم بالذكاء الاصطناعي. صوت 360° متميز والتحكم الصوتي والتكامل السلس مع أجهزة المنزل الذكي.' },
-];
+import { products } from '@/data/products';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,10 +27,13 @@ const ProductDetail: React.FC = () => {
   if (!product) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
+        <Navbar />
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-4">Product not found</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-4">
+            {language === 'ar' ? 'المنتج غير موجود' : 'Product not found'}
+          </h1>
           <Link to="/products">
-            <Button variant="neon">Back to Products</Button>
+            <Button variant="neon">{t('products')}</Button>
           </Link>
         </div>
       </div>
