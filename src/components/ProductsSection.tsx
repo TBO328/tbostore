@@ -1,93 +1,15 @@
 import React, { useState } from 'react';
 import ProductCard from './ProductCard';
 import { useLanguage } from '@/contexts/LanguageContext';
-
-const products = [
-  {
-    id: 1,
-    name: 'Wireless Pro Headphones',
-    nameAr: 'سماعات لاسلكية برو',
-    price: 299,
-    originalPrice: 399,
-    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80',
-    category: 'Electronics',
-    isNew: true,
-  },
-  {
-    id: 2,
-    name: 'Smart Watch Ultra',
-    nameAr: 'ساعة ذكية ألترا',
-    price: 449,
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80',
-    category: 'Electronics',
-    isBestSeller: true,
-  },
-  {
-    id: 3,
-    name: 'Premium Leather Jacket',
-    nameAr: 'جاكيت جلد فاخر',
-    price: 189,
-    originalPrice: 249,
-    image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500&q=80',
-    category: 'Fashion',
-    isNew: true,
-  },
-  {
-    id: 4,
-    name: 'Designer Sunglasses',
-    nameAr: 'نظارات شمسية مصممة',
-    price: 159,
-    image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&q=80',
-    category: 'Accessories',
-  },
-  {
-    id: 5,
-    name: 'Minimalist Desk Lamp',
-    nameAr: 'مصباح مكتب بسيط',
-    price: 79,
-    originalPrice: 99,
-    image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=500&q=80',
-    category: 'Home Goods',
-    isBestSeller: true,
-  },
-  {
-    id: 6,
-    name: 'Wireless Earbuds Pro',
-    nameAr: 'سماعات أذن لاسلكية برو',
-    price: 199,
-    image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=500&q=80',
-    category: 'Electronics',
-  },
-  {
-    id: 7,
-    name: 'Urban Backpack',
-    nameAr: 'حقيبة ظهر حضرية',
-    price: 129,
-    originalPrice: 169,
-    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&q=80',
-    category: 'Accessories',
-    isNew: true,
-  },
-  {
-    id: 8,
-    name: 'Premium Sneakers',
-    nameAr: 'أحذية رياضية فاخرة',
-    price: 179,
-    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&q=80',
-    category: 'Fashion',
-    isBestSeller: true,
-  },
-];
-
-const categories = ['All', 'Electronics', 'Fashion', 'Accessories', 'Home Goods'];
+import { products, categories } from '@/data/products';
 
 const ProductsSection: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('All');
   const { t, language } = useLanguage();
 
   const filteredProducts = activeCategory === 'All'
-    ? products
-    : products.filter(p => p.category === activeCategory);
+    ? products.slice(0, 8)
+    : products.filter(p => p.category === activeCategory).slice(0, 8);
 
   const getCategoryLabel = (cat: string) => {
     const labels: { [key: string]: { en: string; ar: string } } = {
