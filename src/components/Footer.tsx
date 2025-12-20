@@ -1,4 +1,6 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Facebook, Instagram, Twitter } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -6,22 +8,22 @@ const Footer: React.FC = () => {
   const { t, language } = useLanguage();
 
   const quickLinks = [
-    { label: { en: 'Home', ar: 'الرئيسية' }, href: '#home' },
-    { label: { en: 'Products', ar: 'المنتجات' }, href: '#products' },
-    { label: { en: 'About Us', ar: 'من نحن' }, href: '#about' },
-    { label: { en: 'Reviews', ar: 'التقييمات' }, href: '#reviews' },
-    { label: { en: 'Contact', ar: 'اتصل بنا' }, href: '#contact' },
+    { label: { en: 'Home', ar: 'الرئيسية' }, to: '/' },
+    { label: { en: 'Products', ar: 'المنتجات' }, to: '/products' },
+    { label: { en: 'About Us', ar: 'من نحن' }, to: '/about' },
+    { label: { en: 'Reviews', ar: 'التقييمات' }, to: '/reviews' },
+    { label: { en: 'Contact', ar: 'اتصل بنا' }, to: '/contact' },
   ];
 
   const categories = [
-    { label: { en: 'Electronics', ar: 'إلكترونيات' }, href: '#' },
-    { label: { en: 'Fashion', ar: 'أزياء' }, href: '#' },
-    { label: { en: 'Accessories', ar: 'إكسسوارات' }, href: '#' },
-    { label: { en: 'Home Goods', ar: 'مستلزمات منزلية' }, href: '#' },
+    { label: { en: 'Electronics', ar: 'إلكترونيات' }, to: '/products' },
+    { label: { en: 'Fashion', ar: 'أزياء' }, to: '/products' },
+    { label: { en: 'Accessories', ar: 'إكسسوارات' }, to: '/products' },
+    { label: { en: 'Home Goods', ar: 'مستلزمات منزلية' }, to: '/products' },
   ];
 
   return (
-    <footer id="contact" className="bg-card border-t border-border relative overflow-hidden">
+    <footer className="bg-card border-t border-border relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-neon-cyan/5 rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-neon-magenta/5 rounded-full blur-3xl" />
@@ -30,29 +32,41 @@ const Footer: React.FC = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2 mb-6">
+            <Link to="/" className="flex items-center gap-2 mb-6">
               <span className="font-display text-3xl font-bold text-gradient-neon glow-text-cyan">
                 TBO
               </span>
               <span className="font-display text-2xl font-semibold text-foreground">
                 STORE
               </span>
-            </div>
+            </Link>
             <p className="text-muted-foreground mb-6">
               {language === 'en'
                 ? 'Your destination for premium products with cutting-edge design and unmatched quality.'
                 : 'وجهتك للمنتجات الفاخرة بتصميم متطور وجودة لا مثيل لها.'}
             </p>
             <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all duration-300">
+              <motion.a
+                href="#"
+                whileHover={{ scale: 1.1, y: -2 }}
+                className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+              >
                 <Facebook className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-secondary hover:text-secondary-foreground transition-all duration-300">
+              </motion.a>
+              <motion.a
+                href="#"
+                whileHover={{ scale: 1.1, y: -2 }}
+                className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-secondary hover:text-secondary-foreground transition-all duration-300"
+              >
                 <Instagram className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-all duration-300">
+              </motion.a>
+              <motion.a
+                href="#"
+                whileHover={{ scale: 1.1, y: -2 }}
+                className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-all duration-300"
+              >
                 <Twitter className="w-5 h-5" />
-              </a>
+              </motion.a>
             </div>
           </div>
 
@@ -64,12 +78,12 @@ const Footer: React.FC = () => {
             <ul className="space-y-3">
               {quickLinks.map((link, index) => (
                 <li key={index}>
-                  <a
-                    href={link.href}
+                  <Link
+                    to={link.to}
                     className="text-muted-foreground hover:text-primary transition-colors duration-300"
                   >
                     {link.label[language]}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -83,12 +97,12 @@ const Footer: React.FC = () => {
             <ul className="space-y-3">
               {categories.map((cat, index) => (
                 <li key={index}>
-                  <a
-                    href={cat.href}
+                  <Link
+                    to={cat.to}
                     className="text-muted-foreground hover:text-primary transition-colors duration-300"
                   >
                     {cat.label[language]}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
