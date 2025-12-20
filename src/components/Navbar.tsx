@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCart } from '@/contexts/CartContext';
 import FlyingCartItem from '@/components/FlyingCartItem';
+import tboLogo from '@/assets/tbo-logo.png';
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -50,15 +51,17 @@ const Navbar: React.FC = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2">
-              <motion.span 
-                whileHover={{ scale: 1.05 }}
-                className="font-display text-2xl md:text-3xl font-bold text-gradient-neon glow-text-cyan"
-              >
-                TBO
-              </motion.span>
-              <span className="font-display text-xl md:text-2xl font-semibold text-foreground">
-                STORE
+            <Link to="/" className="flex items-center gap-3">
+              <motion.img 
+                src={tboLogo}
+                alt="TBO Store"
+                className="h-10 md:h-12 w-auto"
+                whileHover={{ scale: 1.1, filter: 'drop-shadow(0 0 12px hsl(var(--primary)))' }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+              />
+              <span className="font-display text-xl md:text-2xl font-bold text-foreground">
+                TBO <span className="text-primary glow-text-cyan">STORE</span>
               </span>
             </Link>
 
