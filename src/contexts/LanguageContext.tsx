@@ -55,6 +55,24 @@ const translations: Translations = {
   loading: { en: 'Loading...', ar: 'جار التحميل...' },
   search: { en: 'Search', ar: 'بحث' },
   cart: { en: 'Cart', ar: 'السلة' },
+
+  // Cart
+  shoppingCart: { en: 'Shopping Cart', ar: 'سلة التسوق' },
+  cartEmpty: { en: 'Your cart is empty', ar: 'سلتك فارغة' },
+  cartEmptyDesc: { en: 'Add some products to get started!', ar: 'أضف بعض المنتجات للبدء!' },
+  continueShopping: { en: 'Continue Shopping', ar: 'متابعة التسوق' },
+  totalPrice: { en: 'Total Price', ar: 'إجمالي السعر' },
+  contactUs: { en: 'Contact Us', ar: 'تواصل معنا' },
+  proceedToCheckout: { en: 'Proceed to Checkout', ar: 'متابعة الشراء' },
+  removeItem: { en: 'Remove', ar: 'إزالة' },
+  quantity: { en: 'Quantity', ar: 'الكمية' },
+  addedToCart: { en: 'Added to cart!', ar: 'تمت الإضافة للسلة!' },
+  
+  // Product Detail
+  productDescription: { en: 'Product Description', ar: 'وصف المنتج' },
+  relatedProducts: { en: 'Related Products', ar: 'منتجات ذات صلة' },
+  inStock: { en: 'In Stock', ar: 'متوفر' },
+  outOfStock: { en: 'Out of Stock', ar: 'غير متوفر' },
 };
 
 interface LanguageContextType {
