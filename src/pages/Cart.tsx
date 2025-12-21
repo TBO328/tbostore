@@ -17,12 +17,12 @@ const Cart: React.FC = () => {
 
   const handleWhatsAppCheckout = () => {
     const itemsList = items.map(item => 
-      `• ${language === 'ar' ? item.nameAr : item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`
+      `• ${language === 'ar' ? item.nameAr : item.name} x${item.quantity} - ${(item.price * item.quantity).toFixed(2)} ر.س`
     ).join('\n');
     
     const message = language === 'ar' 
-      ? `مرحباً! أود شراء المنتجات التالية:\n\n${itemsList}\n\nالإجمالي: $${getTotalPrice().toFixed(2)}`
-      : `Hello! I would like to purchase the following items:\n\n${itemsList}\n\nTotal: $${getTotalPrice().toFixed(2)}`;
+      ? `مرحباً! أود شراء المنتجات التالية:\n\n${itemsList}\n\nالإجمالي: ${getTotalPrice().toFixed(2)} ر.س`
+      : `Hello! I would like to purchase the following items:\n\n${itemsList}\n\nTotal: ${getTotalPrice().toFixed(2)} SAR`;
     
     const encodedMessage = encodeURIComponent(message);
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`, '_blank');
@@ -108,7 +108,7 @@ const Cart: React.FC = () => {
                             </h3>
                           </Link>
                           <p className="text-primary font-bold mt-1">
-                            ${item.price.toFixed(2)}
+                            {item.price.toFixed(2)} ر.س
                           </p>
                         </div>
 
@@ -140,7 +140,7 @@ const Cart: React.FC = () => {
                           {/* Item Total & Remove */}
                           <div className="flex items-center gap-4">
                             <span className="font-display font-bold text-foreground">
-                              ${(item.price * item.quantity).toFixed(2)}
+                              {(item.price * item.quantity).toFixed(2)} ر.س
                             </span>
                             <Button
                               variant="ghost"
@@ -174,7 +174,7 @@ const Cart: React.FC = () => {
                             {language === 'ar' ? item.nameAr : item.name} x{item.quantity}
                           </span>
                           <span className="text-foreground font-medium">
-                            ${(item.price * item.quantity).toFixed(2)}
+                            {(item.price * item.quantity).toFixed(2)} ر.س
                           </span>
                         </div>
                       ))}
@@ -189,7 +189,7 @@ const Cart: React.FC = () => {
                         {language === 'ar' ? 'إجمالي السعر' : 'Total Price'}
                       </span>
                       <span className="font-display text-2xl font-bold text-primary glow-text-cyan">
-                        ${getTotalPrice().toFixed(2)}
+                        {getTotalPrice().toFixed(2)} ر.س
                       </span>
                     </div>
 

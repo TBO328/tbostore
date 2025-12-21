@@ -146,11 +146,11 @@ const ProductDetail: React.FC = () => {
                 {/* Price */}
                 <div className="flex items-center gap-4">
                   <span className="font-display text-3xl font-bold text-primary glow-text-cyan">
-                    ${product.price}
+                    {product.price} ر.س
                   </span>
                   {product.originalPrice && (
                     <span className="text-xl text-muted-foreground line-through">
-                      ${product.originalPrice}
+                      {product.originalPrice} ر.س
                     </span>
                   )}
                 </div>
@@ -213,7 +213,7 @@ const ProductDetail: React.FC = () => {
                     ) : (
                       <>
                         <ShoppingCart className="w-5 h-5 mr-2" />
-                        {t('addToCart')} - ${product.price * quantity}
+                        {t('addToCart')} - {product.price * quantity} ر.س
                       </>
                     )}
                   </Button>
