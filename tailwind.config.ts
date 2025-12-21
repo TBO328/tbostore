@@ -13,15 +13,19 @@ export default {
   		}
   	},
   	extend: {
-  		fontFamily: {
-  			display: [
-  				'Orbitron',
-  				'sans-serif'
-  			],
-  			body: [
-  				'Inter',
-  				'sans-serif'
-  			],
+		fontFamily: {
+			display: [
+				'Orbitron',
+				'sans-serif'
+			],
+			body: [
+				'Inter',
+				'sans-serif'
+			],
+			arabic: [
+				'Cairo',
+				'sans-serif'
+			],
   			sans: [
   				'ui-sans-serif',
   				'system-ui',
