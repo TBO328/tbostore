@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Send, Facebook, Instagram, Twitter, Clock } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Instagram, Clock } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -21,14 +21,14 @@ const Contact: React.FC = () => {
     },
     {
       icon: Phone,
-      label: { en: 'Phone', ar: 'الهاتف' },
-      value: '+1 (555) 123-4567',
+      label: { en: 'Phone / WhatsApp', ar: 'الهاتف / واتساب' },
+      value: '+90 551 007 0277',
       color: 'magenta',
     },
     {
       icon: MapPin,
       label: { en: 'Address', ar: 'العنوان' },
-      value: { en: '123 Commerce Street, Business District', ar: '123 شارع التجارة، حي الأعمال' },
+      value: { en: 'Istanbul, Turkey', ar: 'إسطنبول، تركيا' },
       color: 'purple',
     },
     {
@@ -208,25 +208,13 @@ const Contact: React.FC = () => {
                     </h3>
                     <div className="flex gap-4">
                       <motion.a
-                        href="#"
+                        href="https://www.instagram.com/tbostore1/"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         whileHover={{ scale: 1.1, y: -2 }}
-                        className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all duration-300"
-                      >
-                        <Facebook className="w-5 h-5" />
-                      </motion.a>
-                      <motion.a
-                        href="#"
-                        whileHover={{ scale: 1.1, y: -2 }}
-                        className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-secondary hover:text-secondary-foreground transition-all duration-300"
+                        className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white transition-all duration-300"
                       >
                         <Instagram className="w-5 h-5" />
-                      </motion.a>
-                      <motion.a
-                        href="#"
-                        whileHover={{ scale: 1.1, y: -2 }}
-                        className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-all duration-300"
-                      >
-                        <Twitter className="w-5 h-5" />
                       </motion.a>
                     </div>
                   </div>

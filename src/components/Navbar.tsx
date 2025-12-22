@@ -1,17 +1,23 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ShoppingCart, Search } from 'lucide-react';
+import { Menu, X, ShoppingCart, Search, Moon, Sun, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCart } from '@/contexts/CartContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import FlyingCartItem from '@/components/FlyingCartItem';
-import tboLogo from '@/assets/tbo-logo.png';
+import SearchDialog from '@/components/SearchDialog';
+import tboStoreLogo from '@/assets/tbo-store-logo.png';
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   const { getTotalItems, cartIconRef, flyingItem } = useCart();
+  const { theme, toggleTheme } = useTheme();
+  const { currency, setCurrency } = useCurrency();
   const location = useLocation();
 
   const navLinks = [
@@ -47,13 +53,16 @@ const Navbar: React.FC = () => {
         )}
       </AnimatePresence>
 
+      {/* Search Dialog */}
+      <SearchDialog isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3">
               <motion.img 
-                src={tboLogo}
+                src={tboStoreLogo}
                 alt="TBO Store"
                 className="h-10 md:h-12 w-auto"
                 whileHover={{ scale: 1.1, filter: 'drop-shadow(0 0 12px hsl(var(--primary)))' }}
@@ -90,7 +99,25 @@ const Navbar: React.FC = () => {
             </div>
 
             {/* Right Side Actions */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              {/* Currency Toggle */}
+              <motion.button
+                onClick={() => setCurrency(currency === 'SAR' ? 'USD' : 'SAR')}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <DollarSign className="w-3 h-3" />
+                {currency}
+              </motion.button>
+
+              {/* Theme Toggle */}
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button variant="ghost" size="icon" onClick={toggleTheme} className="hidden sm:flex">
+                  {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </Button>
+              </motion.div>
+
               {/* Language Selector with Animation */}
               <motion.div 
                 className="flex items-center gap-1 bg-muted rounded-lg p-1"
@@ -120,12 +147,14 @@ const Navbar: React.FC = () => {
                 </motion.button>
               </motion.div>
 
-              {/* Search & Cart */}
+              {/* Search Button */}
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button variant="ghost" size="icon" className="hidden md:flex">
+                <Button variant="ghost" size="icon" onClick={() => setIsSearchOpen(true)}>
                   <Search className="w-5 h-5" />
                 </Button>
               </motion.div>
+
+              {/* Cart */}
               <Link to="/cart">
                 <motion.div 
                   ref={cartIconRef}
@@ -216,6 +245,28 @@ const Navbar: React.FC = () => {
                       </Link>
                     </motion.div>
                   ))}
+                  
+                  {/* Mobile Theme & Currency Toggle */}
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: navLinks.length * 0.05 }}
+                    className="flex items-center gap-4 px-4 py-3"
+                  >
+                    <Button variant="ghost" size="sm" onClick={toggleTheme} className="flex items-center gap-2">
+                      {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                      {theme === 'dark' ? 'Light' : 'Dark'}
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setCurrency(currency === 'SAR' ? 'USD' : 'SAR')}
+                      className="flex items-center gap-2"
+                    >
+                      <DollarSign className="w-4 h-4" />
+                      {currency}
+                    </Button>
+                  </motion.div>
                 </div>
               </motion.div>
             )}
