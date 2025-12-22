@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Facebook, Instagram, Twitter } from 'lucide-react';
+import { Mail, Phone, MapPin, Instagram } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import tboStoreLogo from '@/assets/tbo-store-logo.png';
 
 const Footer: React.FC = () => {
   const { t, language } = useLanguage();
@@ -32,12 +33,14 @@ const Footer: React.FC = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
           <div>
-            <Link to="/" className="flex items-center gap-2 mb-6">
-              <span className="font-display text-3xl font-bold text-gradient-neon glow-text-cyan">
-                TBO
-              </span>
-              <span className="font-display text-2xl font-semibold text-foreground">
-                STORE
+            <Link to="/" className="flex items-center gap-3 mb-6">
+              <img 
+                src={tboStoreLogo} 
+                alt="TBO Store" 
+                className="h-12 w-auto"
+              />
+              <span className="font-display text-2xl font-bold text-foreground">
+                TBO <span className="text-primary glow-text-cyan">STORE</span>
               </span>
             </Link>
             <p className="text-muted-foreground mb-6">
@@ -47,25 +50,13 @@ const Footer: React.FC = () => {
             </p>
             <div className="flex gap-4">
               <motion.a
-                href="#"
+                href="https://www.instagram.com/tbostore1/"
+                target="_blank"
+                rel="noopener noreferrer"
                 whileHover={{ scale: 1.1, y: -2 }}
-                className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all duration-300"
-              >
-                <Facebook className="w-5 h-5" />
-              </motion.a>
-              <motion.a
-                href="#"
-                whileHover={{ scale: 1.1, y: -2 }}
-                className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-secondary hover:text-secondary-foreground transition-all duration-300"
+                className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white transition-all duration-300"
               >
                 <Instagram className="w-5 h-5" />
-              </motion.a>
-              <motion.a
-                href="#"
-                whileHover={{ scale: 1.1, y: -2 }}
-                className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-all duration-300"
-              >
-                <Twitter className="w-5 h-5" />
               </motion.a>
             </div>
           </div>
@@ -120,11 +111,13 @@ const Footer: React.FC = () => {
               </li>
               <li className="flex items-center gap-3 text-muted-foreground">
                 <Phone className="w-5 h-5 text-primary" />
-                <span>+1 (555) 123-4567</span>
+                <a href="tel:+905510070277" className="hover:text-primary transition-colors">
+                  +90 551 007 0277
+                </a>
               </li>
               <li className="flex items-start gap-3 text-muted-foreground">
                 <MapPin className="w-5 h-5 text-primary shrink-0 mt-1" />
-                <span>{language === 'en' ? '123 Commerce Street, Business District' : '123 شارع التجارة، حي الأعمال'}</span>
+                <span>{language === 'en' ? 'Istanbul, Turkey' : 'إسطنبول، تركيا'}</span>
               </li>
             </ul>
           </div>
@@ -133,15 +126,15 @@ const Footer: React.FC = () => {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © 2024 TBO STORE. {t('allRightsReserved')}
+            © 2026 TBO STORE. {t('allRightsReserved')}
           </p>
           <div className="flex gap-6 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-primary transition-colors">
+            <Link to="/policies" className="hover:text-primary transition-colors">
               {language === 'en' ? 'Privacy Policy' : 'سياسة الخصوصية'}
-            </a>
-            <a href="#" className="hover:text-primary transition-colors">
+            </Link>
+            <Link to="/policies" className="hover:text-primary transition-colors">
               {language === 'en' ? 'Terms of Service' : 'شروط الخدمة'}
-            </a>
+            </Link>
           </div>
         </div>
       </div>

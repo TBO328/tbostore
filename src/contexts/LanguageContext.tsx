@@ -19,7 +19,7 @@ const translations: Translations = {
   reviews: { en: 'Reviews', ar: 'التقييمات' },
   
   // Hero
-  heroTitle: { en: 'Welcome to TBO STORE', ar: 'مرحباً بكم في TBO STORE' },
+  heroTitle: { en: 'Welcome to\nTBO STORE', ar: 'مرحباً بكم في\nTBO STORE' },
   heroSubtitle: { en: 'Discover the Future of Shopping', ar: 'اكتشف مستقبل التسوق' },
   heroDescription: { en: 'Experience premium products with cutting-edge design and unmatched quality.', ar: 'اختبر منتجات متميزة بتصميم متطور وجودة لا مثيل لها.' },
   shopNow: { en: 'Shop Now', ar: 'تسوق الآن' },

@@ -5,24 +5,26 @@ import { ShoppingCart, Trash2, Plus, Minus, ArrowLeft, MessageCircle } from 'luc
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCart } from '@/contexts/CartContext';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import AnimatedSection from '@/components/AnimatedSection';
 
-const WHATSAPP_NUMBER = '966500000000'; // Replace with your WhatsApp number
+const WHATSAPP_NUMBER = '905510070277';
 
 const Cart: React.FC = () => {
   const { language, t } = useLanguage();
   const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart } = useCart();
+  const { formatPrice, currency } = useCurrency();
 
   const handleWhatsAppCheckout = () => {
     const itemsList = items.map(item => 
-      `• ${language === 'ar' ? item.nameAr : item.name} x${item.quantity} - ${(item.price * item.quantity).toFixed(2)} ر.س`
+      `• ${language === 'ar' ? item.nameAr : item.name} x${item.quantity} - ${formatPrice(item.price * item.quantity)}`
     ).join('\n');
     
     const message = language === 'ar' 
-      ? `مرحباً! أود شراء المنتجات التالية:\n\n${itemsList}\n\nالإجمالي: ${getTotalPrice().toFixed(2)} ر.س`
-      : `Hello! I would like to purchase the following items:\n\n${itemsList}\n\nTotal: ${getTotalPrice().toFixed(2)} SAR`;
+      ? `مرحباً! أود شراء المنتجات التالية:\n\n${itemsList}\n\nالإجمالي: ${formatPrice(getTotalPrice())}`
+      : `Hello! I would like to purchase the following items:\n\n${itemsList}\n\nTotal: ${formatPrice(getTotalPrice())}`;
     
     const encodedMessage = encodeURIComponent(message);
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`, '_blank');
@@ -108,7 +110,7 @@ const Cart: React.FC = () => {
                             </h3>
                           </Link>
                           <p className="text-primary font-bold mt-1">
-                            {item.price.toFixed(2)} ر.س
+                            {formatPrice(item.price)}
                           </p>
                         </div>
 
@@ -140,7 +142,7 @@ const Cart: React.FC = () => {
                           {/* Item Total & Remove */}
                           <div className="flex items-center gap-4">
                             <span className="font-display font-bold text-foreground">
-                              {(item.price * item.quantity).toFixed(2)} ر.س
+                              {formatPrice(item.price * item.quantity)}
                             </span>
                             <Button
                               variant="ghost"
@@ -174,7 +176,7 @@ const Cart: React.FC = () => {
                             {language === 'ar' ? item.nameAr : item.name} x{item.quantity}
                           </span>
                           <span className="text-foreground font-medium">
-                            {(item.price * item.quantity).toFixed(2)} ر.س
+                            {formatPrice(item.price * item.quantity)}
                           </span>
                         </div>
                       ))}
@@ -189,7 +191,7 @@ const Cart: React.FC = () => {
                         {language === 'ar' ? 'إجمالي السعر' : 'Total Price'}
                       </span>
                       <span className="font-display text-2xl font-bold text-primary glow-text-cyan">
-                        {getTotalPrice().toFixed(2)} ر.س
+                        {formatPrice(getTotalPrice())}
                       </span>
                     </div>
 

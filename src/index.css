@@ -69,6 +69,28 @@
     --sidebar-border: 195 25% 22%;
     --sidebar-ring: 192 45% 45%;
   }
+
+  .light {
+    --background: 0 0% 98%;
+    --foreground: 195 40% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 195 40% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 195 40% 15%;
+    --primary: 192 45% 40%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 192 50% 30%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 195 20% 92%;
+    --muted-foreground: 195 15% 45%;
+    --accent: 192 60% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 195 20% 85%;
+    --input: 195 20% 90%;
+    --ring: 192 45% 40%;
+  }
 }
 
 @layer base {
