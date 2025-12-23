@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ShoppingCart, Search, Moon, Sun, DollarSign } from 'lucide-react';
+import { Menu, X, ShoppingCart, Search, Moon, Sun, DollarSign, User, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCart } from '@/contexts/CartContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import { useAuth } from '@/hooks/useAuth';
 import FlyingCartItem from '@/components/FlyingCartItem';
 import SearchDialog from '@/components/SearchDialog';
 import tboStoreLogo from '@/assets/tbo-store-logo.png';
@@ -18,6 +19,7 @@ const Navbar: React.FC = () => {
   const { getTotalItems, cartIconRef, flyingItem } = useCart();
   const { theme, toggleTheme } = useTheme();
   const { currency, setCurrency } = useCurrency();
+  const { user, isAdmin } = useAuth();
   const location = useLocation();
 
   const navLinks = [
@@ -153,6 +155,26 @@ const Navbar: React.FC = () => {
                   <Search className="w-5 h-5" />
                 </Button>
               </motion.div>
+
+              {/* Admin Link */}
+              {isAdmin && (
+                <Link to="/admin">
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button variant="ghost" size="icon" className="text-primary">
+                      <Shield className="w-5 h-5" />
+                    </Button>
+                  </motion.div>
+                </Link>
+              )}
+
+              {/* User Auth */}
+              <Link to={user ? "/admin" : "/auth"}>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button variant="ghost" size="icon">
+                    <User className={`w-5 h-5 ${user ? 'text-primary' : ''}`} />
+                  </Button>
+                </motion.div>
+              </Link>
 
               {/* Cart */}
               <Link to="/cart">
