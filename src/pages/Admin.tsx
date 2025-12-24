@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Package, Ticket, Plus, Pencil, Trash2, Loader2, LogOut, ShoppingBag, Settings, Eye, ChevronDown } from 'lucide-react';
+import { Package, Ticket, Plus, Pencil, Trash2, Loader2, LogOut, ShoppingBag, Settings, Eye, ChevronDown, Home, TrendingUp, Users, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -401,41 +401,130 @@ const Admin: React.FC = () => {
 
   if (!isAdmin) return null;
 
+  // Calculate stats
+  const totalRevenue = orders.reduce((sum, order) => sum + order.total_amount, 0);
+  const pendingOrders = orders.filter(o => o.status === 'pending').length;
+  const deliveredOrders = orders.filter(o => o.status === 'delivered').length;
+
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card/50 backdrop-blur-xl sticky top-0 z-50">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      {/* Header */}
+      <header className="border-b border-border bg-card/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="font-display text-2xl font-bold text-foreground">
-            {language === 'en' ? 'Admin Panel' : 'لوحة التحكم'}
-          </h1>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">{user?.email}</span>
-            <Button variant="outline" size="sm" onClick={signOut}>
-              <LogOut className="w-4 h-4 mr-2" />
-              {language === 'en' ? 'Sign Out' : 'تسجيل الخروج'}
+            <Link to="/">
+              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+                <Home className="w-5 h-5" />
+              </Button>
+            </Link>
+            <div>
+              <h1 className="font-display text-2xl font-bold text-foreground">
+                {language === 'en' ? 'Admin Dashboard' : 'لوحة التحكم'}
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                {language === 'en' ? 'Manage your store' : 'إدارة متجرك'}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <span className="text-sm font-medium text-primary">{user?.email}</span>
+            </div>
+            <Button variant="outline" size="sm" onClick={signOut} className="gap-2">
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">{language === 'en' ? 'Sign Out' : 'خروج'}</span>
             </Button>
           </div>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0 }}
+            className="bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl p-4 border border-primary/20"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <ShoppingBag className="w-5 h-5 text-primary" />
+              <span className="text-xs text-primary bg-primary/20 px-2 py-0.5 rounded-full">
+                {language === 'en' ? 'Total' : 'الكل'}
+              </span>
+            </div>
+            <p className="text-2xl font-bold text-foreground">{orders.length}</p>
+            <p className="text-xs text-muted-foreground">{language === 'en' ? 'Orders' : 'طلب'}</p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-gradient-to-br from-yellow-500/20 to-yellow-500/5 rounded-2xl p-4 border border-yellow-500/20"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <TrendingUp className="w-5 h-5 text-yellow-500" />
+              <span className="text-xs text-yellow-500 bg-yellow-500/20 px-2 py-0.5 rounded-full">
+                {language === 'en' ? 'Pending' : 'معلق'}
+              </span>
+            </div>
+            <p className="text-2xl font-bold text-foreground">{pendingOrders}</p>
+            <p className="text-xs text-muted-foreground">{language === 'en' ? 'Awaiting' : 'بانتظار'}</p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-gradient-to-br from-green-500/20 to-green-500/5 rounded-2xl p-4 border border-green-500/20"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <Package className="w-5 h-5 text-green-500" />
+              <span className="text-xs text-green-500 bg-green-500/20 px-2 py-0.5 rounded-full">
+                {language === 'en' ? 'Done' : 'مكتمل'}
+              </span>
+            </div>
+            <p className="text-2xl font-bold text-foreground">{deliveredOrders}</p>
+            <p className="text-xs text-muted-foreground">{language === 'en' ? 'Delivered' : 'تم التسليم'}</p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-gradient-to-br from-secondary/20 to-secondary/5 rounded-2xl p-4 border border-secondary/20"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <DollarSign className="w-5 h-5 text-secondary" />
+              <span className="text-xs text-secondary bg-secondary/20 px-2 py-0.5 rounded-full">
+                {language === 'en' ? 'Revenue' : 'الإيرادات'}
+              </span>
+            </div>
+            <p className="text-2xl font-bold text-foreground">{formatPrice(totalRevenue)}</p>
+            <p className="text-xs text-muted-foreground">{language === 'en' ? 'Total Sales' : 'إجمالي المبيعات'}</p>
+          </motion.div>
+        </div>
+
+        {/* Tabs */}
         <Tabs defaultValue="orders" className="w-full">
-          <TabsList className="grid w-full max-w-2xl grid-cols-4 mb-8">
-            <TabsTrigger value="orders" className="flex items-center gap-2">
+          <TabsList className="grid w-full max-w-2xl grid-cols-4 mb-8 bg-card/50 backdrop-blur-sm border border-border p-1 rounded-xl">
+            <TabsTrigger value="orders" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <ShoppingBag className="w-4 h-4" />
-              {t('orders')}
+              <span className="hidden sm:inline">{t('orders')}</span>
             </TabsTrigger>
-            <TabsTrigger value="products" className="flex items-center gap-2">
+            <TabsTrigger value="products" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Package className="w-4 h-4" />
-              {language === 'en' ? 'Products' : 'المنتجات'}
+              <span className="hidden sm:inline">{language === 'en' ? 'Products' : 'المنتجات'}</span>
             </TabsTrigger>
-            <TabsTrigger value="coupons" className="flex items-center gap-2">
+            <TabsTrigger value="coupons" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Ticket className="w-4 h-4" />
-              {language === 'en' ? 'Coupons' : 'الكوبونات'}
+              <span className="hidden sm:inline">{language === 'en' ? 'Coupons' : 'الكوبونات'}</span>
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
+            <TabsTrigger value="settings" className="flex items-center gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Settings className="w-4 h-4" />
-              {t('paymentSettings')}
+              <span className="hidden sm:inline">{language === 'en' ? 'Settings' : 'الإعدادات'}</span>
             </TabsTrigger>
           </TabsList>
 
