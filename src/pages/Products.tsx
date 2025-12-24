@@ -18,10 +18,10 @@ const Products: React.FC = () => {
   const getCategoryLabel = (cat: string) => {
     const labels: { [key: string]: { en: string; ar: string } } = {
       'All': { en: 'All', ar: 'الكل' },
-      'Electronics': { en: 'Electronics', ar: 'إلكترونيات' },
-      'Fashion': { en: 'Fashion', ar: 'أزياء' },
-      'Accessories': { en: 'Accessories', ar: 'إكسسوارات' },
-      'Home Goods': { en: 'Home Goods', ar: 'مستلزمات منزلية' },
+      'Subscriptions': { en: 'Subscriptions', ar: 'اشتراكات' },
+      'Designs': { en: 'Designs', ar: 'تصاميم' },
+      'Engagement': { en: 'Engagement', ar: 'تفاعل' },
+      'Discord': { en: 'Discord', ar: 'ديسكورد' },
     };
     return labels[cat]?.[language] || cat;
   };
