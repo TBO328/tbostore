@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Package, Ticket, Plus, Pencil, Trash2, Loader2, LogOut } from 'lucide-react';
+import { Package, Ticket, Plus, Pencil, Trash2, Loader2, LogOut, ShoppingBag, Settings, Eye, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,24 +9,65 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Product = Tables<'products'>;
 type Coupon = Tables<'coupons'>;
 
+interface Order {
+  id: string;
+  order_number: string;
+  customer_name: string;
+  customer_phone: string;
+  customer_address: string;
+  items: Array<{
+    id: string;
+    name: string;
+    nameAr: string;
+    price: number;
+    quantity: number;
+    image: string;
+  }>;
+  payment_method: string;
+  total_amount: number;
+  status: string;
+  notes: string | null;
+  created_at: string;
+}
+
+interface PaymentSettings {
+  stc_pay_number: string;
+  bank_name: string;
+  bank_account_name: string;
+  bank_iban: string;
+}
+
 const Admin: React.FC = () => {
   const { user, isAdmin, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
+  const { formatPrice } = useCurrency();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Payment settings
+  const [paymentSettings, setPaymentSettings] = useState<PaymentSettings>({
+    stc_pay_number: '',
+    bank_name: '',
+    bank_account_name: '',
+    bank_iban: '',
+  });
+  const [savingSettings, setSavingSettings] = useState(false);
 
   // Product form state
   const [productDialogOpen, setProductDialogOpen] = useState(false);
@@ -53,6 +94,10 @@ const Admin: React.FC = () => {
     is_active: true,
   });
 
+  // Order details dialog
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [orderDetailsOpen, setOrderDetailsOpen] = useState(false);
+
   useEffect(() => {
     if (!authLoading && !user) {
       navigate('/auth');
@@ -75,13 +120,36 @@ const Admin: React.FC = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [productsRes, couponsRes] = await Promise.all([
+      const [productsRes, couponsRes, ordersRes, settingsRes] = await Promise.all([
         supabase.from('products').select('*').order('created_at', { ascending: false }),
         supabase.from('coupons').select('*').order('created_at', { ascending: false }),
+        supabase.from('orders').select('*').order('created_at', { ascending: false }),
+        supabase.from('payment_settings').select('*'),
       ]);
 
       if (productsRes.data) setProducts(productsRes.data);
       if (couponsRes.data) setCoupons(couponsRes.data);
+      if (ordersRes.data) {
+        const typedOrders: Order[] = ordersRes.data.map((order) => ({
+          ...order,
+          items: order.items as Order['items'],
+        }));
+        setOrders(typedOrders);
+      }
+      if (settingsRes.data) {
+        const settings: PaymentSettings = {
+          stc_pay_number: '',
+          bank_name: '',
+          bank_account_name: '',
+          bank_iban: '',
+        };
+        settingsRes.data.forEach((item: { setting_key: string; setting_value: string }) => {
+          if (item.setting_key in settings) {
+            settings[item.setting_key as keyof PaymentSettings] = item.setting_value;
+          }
+        });
+        setPaymentSettings(settings);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -123,8 +191,9 @@ const Admin: React.FC = () => {
       setProductDialogOpen(false);
       resetProductForm();
       fetchData();
-    } catch (error: any) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
     }
   };
 
@@ -200,8 +269,9 @@ const Admin: React.FC = () => {
       setCouponDialogOpen(false);
       resetCouponForm();
       fetchData();
-    } catch (error: any) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
     }
   };
 
@@ -238,6 +308,75 @@ const Admin: React.FC = () => {
     }
   };
 
+  // Order handlers
+  const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    const { error } = await supabase
+      .from('orders')
+      .update({ status: newStatus })
+      .eq('id', orderId);
+    
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: language === 'en' ? 'Status updated!' : 'تم تحديث الحالة!' });
+      fetchData();
+    }
+  };
+
+  const viewOrderDetails = (order: Order) => {
+    setSelectedOrder(order);
+    setOrderDetailsOpen(true);
+  };
+
+  // Payment settings handler
+  const savePaymentSettings = async () => {
+    setSavingSettings(true);
+    try {
+      const updates = Object.entries(paymentSettings).map(([key, value]) => ({
+        setting_key: key,
+        setting_value: value,
+      }));
+
+      for (const update of updates) {
+        const { error } = await supabase
+          .from('payment_settings')
+          .update({ setting_value: update.setting_value })
+          .eq('setting_key', update.setting_key);
+        
+        if (error) throw error;
+      }
+
+      toast({ title: t('settingsSaved') });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending': return 'bg-yellow-500/20 text-yellow-400';
+      case 'confirmed': return 'bg-blue-500/20 text-blue-400';
+      case 'shipped': return 'bg-purple-500/20 text-purple-400';
+      case 'delivered': return 'bg-green-500/20 text-green-400';
+      case 'cancelled': return 'bg-red-500/20 text-red-400';
+      default: return 'bg-muted text-muted-foreground';
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    const statusMap: Record<string, { en: string; ar: string }> = {
+      pending: { en: 'Pending', ar: 'في الانتظار' },
+      confirmed: { en: 'Confirmed', ar: 'مؤكد' },
+      shipped: { en: 'Shipped', ar: 'تم الشحن' },
+      delivered: { en: 'Delivered', ar: 'تم التسليم' },
+      cancelled: { en: 'Cancelled', ar: 'ملغي' },
+    };
+    return statusMap[status]?.[language] || status;
+  };
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -266,8 +405,12 @@ const Admin: React.FC = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="products" className="w-full">
-          <TabsList className="grid w-full max-w-md grid-cols-2 mb-8">
+        <Tabs defaultValue="orders" className="w-full">
+          <TabsList className="grid w-full max-w-2xl grid-cols-4 mb-8">
+            <TabsTrigger value="orders" className="flex items-center gap-2">
+              <ShoppingBag className="w-4 h-4" />
+              {t('orders')}
+            </TabsTrigger>
             <TabsTrigger value="products" className="flex items-center gap-2">
               <Package className="w-4 h-4" />
               {language === 'en' ? 'Products' : 'المنتجات'}
@@ -276,7 +419,76 @@ const Admin: React.FC = () => {
               <Ticket className="w-4 h-4" />
               {language === 'en' ? 'Coupons' : 'الكوبونات'}
             </TabsTrigger>
+            <TabsTrigger value="settings" className="flex items-center gap-2">
+              <Settings className="w-4 h-4" />
+              {t('paymentSettings')}
+            </TabsTrigger>
           </TabsList>
+
+          {/* Orders Tab */}
+          <TabsContent value="orders">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-foreground">
+                {t('manageOrders')}
+              </h2>
+              <span className="text-sm text-muted-foreground">
+                {orders.length} {language === 'en' ? 'orders' : 'طلب'}
+              </span>
+            </div>
+
+            <div className="grid gap-4">
+              {orders.map((order) => (
+                <motion.div
+                  key={order.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-card rounded-xl border border-border p-4"
+                >
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="font-mono font-bold text-foreground">{order.order_number}</span>
+                        <span className={`px-2 py-1 rounded text-xs ${getStatusColor(order.status)}`}>
+                          {getStatusText(order.status)}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {order.customer_name} • {order.customer_phone}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {order.items.length} {language === 'en' ? 'items' : 'منتجات'} • {formatPrice(order.total_amount)}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {new Date(order.created_at).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US')}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Select value={order.status} onValueChange={(value) => updateOrderStatus(order.id, value)}>
+                        <SelectTrigger className="w-[140px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pending">{getStatusText('pending')}</SelectItem>
+                          <SelectItem value="confirmed">{getStatusText('confirmed')}</SelectItem>
+                          <SelectItem value="shipped">{getStatusText('shipped')}</SelectItem>
+                          <SelectItem value="delivered">{getStatusText('delivered')}</SelectItem>
+                          <SelectItem value="cancelled">{getStatusText('cancelled')}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button variant="ghost" size="icon" onClick={() => viewOrderDetails(order)}>
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+              {orders.length === 0 && (
+                <p className="text-center text-muted-foreground py-8">
+                  {t('noOrders')}
+                </p>
+              )}
+            </div>
+          </TabsContent>
 
           {/* Products Tab */}
           <TabsContent value="products">
@@ -539,8 +751,146 @@ const Admin: React.FC = () => {
               )}
             </div>
           </TabsContent>
+
+          {/* Payment Settings Tab */}
+          <TabsContent value="settings">
+            <div className="max-w-2xl">
+              <h2 className="text-xl font-semibold text-foreground mb-6">
+                {t('paymentSettings')}
+              </h2>
+
+              <div className="space-y-6">
+                {/* STC Pay Settings */}
+                <div className="bg-card rounded-xl border border-border p-6">
+                  <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                    <span className="text-primary">📱</span> STC Pay
+                  </h3>
+                  <div className="space-y-2">
+                    <Label>{language === 'en' ? 'STC Pay Number' : 'رقم STC Pay'}</Label>
+                    <Input
+                      value={paymentSettings.stc_pay_number}
+                      onChange={(e) => setPaymentSettings({ ...paymentSettings, stc_pay_number: e.target.value })}
+                      placeholder="05xxxxxxxx"
+                    />
+                  </div>
+                </div>
+
+                {/* Bank Transfer Settings */}
+                <div className="bg-card rounded-xl border border-border p-6">
+                  <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                    <span className="text-primary">🏦</span> {t('bankTransfer')}
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>{t('bankName')}</Label>
+                      <Input
+                        value={paymentSettings.bank_name}
+                        onChange={(e) => setPaymentSettings({ ...paymentSettings, bank_name: e.target.value })}
+                        placeholder={language === 'ar' ? 'مثال: الراجحي' : 'e.g., Al Rajhi Bank'}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>{t('accountName')}</Label>
+                      <Input
+                        value={paymentSettings.bank_account_name}
+                        onChange={(e) => setPaymentSettings({ ...paymentSettings, bank_account_name: e.target.value })}
+                        placeholder={language === 'ar' ? 'اسم صاحب الحساب' : 'Account holder name'}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>{t('iban')}</Label>
+                      <Input
+                        value={paymentSettings.bank_iban}
+                        onChange={(e) => setPaymentSettings({ ...paymentSettings, bank_iban: e.target.value })}
+                        placeholder="SA..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <Button 
+                  variant="neon-filled" 
+                  onClick={savePaymentSettings}
+                  disabled={savingSettings}
+                  className="w-full"
+                >
+                  {savingSettings ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      {language === 'en' ? 'Saving...' : 'جاري الحفظ...'}
+                    </>
+                  ) : (
+                    t('saveSettings')
+                  )}
+                </Button>
+              </div>
+            </div>
+          </TabsContent>
         </Tabs>
       </main>
+
+      {/* Order Details Dialog */}
+      <Dialog open={orderDetailsOpen} onOpenChange={setOrderDetailsOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t('orderDetails')}</DialogTitle>
+          </DialogHeader>
+          {selectedOrder && (
+            <div className="space-y-6">
+              {/* Order Info */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">{t('orderNumber')}</p>
+                  <p className="font-mono font-bold">{selectedOrder.order_number}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">{language === 'en' ? 'Date' : 'التاريخ'}</p>
+                  <p className="font-medium">{new Date(selectedOrder.created_at).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US')}</p>
+                </div>
+              </div>
+
+              {/* Customer Info */}
+              <div className="bg-muted rounded-lg p-4 space-y-2">
+                <h4 className="font-semibold">{t('customerInfo')}</h4>
+                <p><span className="text-muted-foreground">{t('fullName')}:</span> {selectedOrder.customer_name}</p>
+                <p><span className="text-muted-foreground">{t('phoneNumber')}:</span> {selectedOrder.customer_phone}</p>
+                <p><span className="text-muted-foreground">{t('address')}:</span> {selectedOrder.customer_address}</p>
+              </div>
+
+              {/* Items */}
+              <div>
+                <h4 className="font-semibold mb-3">{language === 'en' ? 'Items' : 'المنتجات'}</h4>
+                <div className="space-y-2">
+                  {selectedOrder.items.map((item, index) => (
+                    <div key={index} className="flex items-center gap-3 p-2 bg-muted/50 rounded-lg">
+                      <img src={item.image} alt={item.name} className="w-12 h-12 rounded object-cover" />
+                      <div className="flex-1">
+                        <p className="font-medium">{language === 'ar' ? item.nameAr : item.name}</p>
+                        <p className="text-sm text-muted-foreground">x{item.quantity}</p>
+                      </div>
+                      <p className="font-medium">{formatPrice(item.price * item.quantity)}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Payment & Total */}
+              <div className="border-t border-border pt-4">
+                <div className="flex justify-between mb-2">
+                  <span className="text-muted-foreground">{t('paymentMethod')}</span>
+                  <span className="font-medium">
+                    {selectedOrder.payment_method === 'stc_pay' ? 'STC Pay' : t('bankTransfer')}
+                  </span>
+                </div>
+                <div className="flex justify-between text-lg font-bold">
+                  <span>{t('totalPrice')}</span>
+                  <span className="text-primary">{formatPrice(selectedOrder.total_amount)}</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
