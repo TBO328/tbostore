@@ -88,10 +88,10 @@ const Index: React.FC = () => {
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-hero">
           {/* Logo on the left with transparency */}
           <motion.div
-            initial={{ opacity: 0, x: -100 }}
-            animate={{ opacity: 0.15, x: 0 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 0.08, scale: 1 }}
             transition={{ duration: 1, delay: 0.5 }}
-            className="absolute -left-32 md:-left-24 lg:-left-20 -top-8 md:top-0 z-0 hidden md:block"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-0 hidden md:block"
           >
             <img 
               src={tboStoreLogo} 
