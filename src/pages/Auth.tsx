@@ -213,6 +213,16 @@ const Auth: React.FC = () => {
                   minLength={6}
                 />
               </div>
+              {isLogin && (
+                <div className="text-right">
+                  <Link 
+                    to="/forgot-password" 
+                    className="text-sm text-primary hover:text-primary/80 transition-colors"
+                  >
+                    {language === 'en' ? 'Forgot Password?' : 'نسيت كلمة المرور؟'}
+                  </Link>
+                </div>
+              )}
             </div>
 
             <Button
