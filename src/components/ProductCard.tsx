@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Heart, Eye } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ShoppingCart, Heart, Eye, Star, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCart } from '@/contexts/CartContext';
@@ -10,11 +11,13 @@ import type { Product } from '@/data/products';
 
 interface ProductCardProps {
   product: Product;
+  index?: number;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, index = 0 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const { language, t } = useLanguage();
   const { addToCart, triggerFlyAnimation, cartIconRef } = useCart();
   const imageRef = useRef<HTMLImageElement>(null);
@@ -23,9 +26,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    setIsAddingToCart(true);
     
     if (imageRef.current && cartIconRef.current) {
       const imageRect = imageRef.current.getBoundingClientRect();
@@ -44,84 +49,190 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     });
     
     toast.success(t('addedToCart'));
+    
+    setTimeout(() => setIsAddingToCart(false), 600);
+  };
+
+  const handleLike = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsLiked(!isLiked);
   };
 
   return (
     <Link to={`/product/${product.id}`}>
-      <div
-        className="group relative bg-gradient-card rounded-2xl overflow-hidden border border-border transition-all duration-500 hover:border-primary/50 neon-glow"
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: index * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+        whileHover={{ y: -8 }}
+        className="group relative bg-card rounded-2xl overflow-hidden border border-border transition-all duration-500 hover:border-primary/50 hover:shadow-neon-cyan"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
+        {/* Animated Background Gradient */}
+        <motion.div 
+          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-0"
+          style={{
+            background: 'linear-gradient(135deg, hsl(var(--primary) / 0.05), hsl(var(--secondary) / 0.05))',
+          }}
+        />
+
         {/* Badges */}
         <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
-          {product.isNew && (
-            <span className="px-3 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full shadow-neon-cyan">
-              NEW
-            </span>
-          )}
-          {product.isBestSeller && (
-            <span className="px-3 py-1 bg-secondary text-secondary-foreground text-xs font-bold rounded-full shadow-neon-magenta">
-              BEST
-            </span>
-          )}
-          {discount > 0 && (
-            <span className="px-3 py-1 bg-destructive text-destructive-foreground text-xs font-bold rounded-full">
-              -{discount}%
-            </span>
-          )}
+          <AnimatePresence>
+            {product.isNew && (
+              <motion.span 
+                initial={{ scale: 0, rotate: -12 }}
+                animate={{ scale: 1, rotate: 0 }}
+                className="px-3 py-1.5 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-xs font-bold rounded-full shadow-neon-cyan flex items-center gap-1"
+              >
+                <Sparkles className="w-3 h-3" />
+                NEW
+              </motion.span>
+            )}
+          </AnimatePresence>
+          <AnimatePresence>
+            {product.isBestSeller && (
+              <motion.span 
+                initial={{ scale: 0, rotate: 12 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ delay: 0.1 }}
+                className="px-3 py-1.5 bg-gradient-to-r from-secondary to-secondary/80 text-secondary-foreground text-xs font-bold rounded-full shadow-neon-magenta flex items-center gap-1"
+              >
+                <Star className="w-3 h-3 fill-current" />
+                BEST
+              </motion.span>
+            )}
+          </AnimatePresence>
+          <AnimatePresence>
+            {discount > 0 && (
+              <motion.span 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2 }}
+                className="px-3 py-1.5 bg-gradient-to-r from-destructive to-destructive/80 text-destructive-foreground text-xs font-bold rounded-full"
+              >
+                -{discount}%
+              </motion.span>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Quick Actions */}
-        <div className={`absolute top-4 right-4 z-20 flex flex-col gap-2 transition-all duration-300 ${isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}>
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setIsLiked(!isLiked);
-            }}
-            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
-              isLiked ? 'bg-secondary text-secondary-foreground shadow-neon-magenta' : 'bg-muted text-muted-foreground hover:bg-secondary hover:text-secondary-foreground'
+        <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
+          <motion.button
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : 20 }}
+            transition={{ duration: 0.3, delay: 0 }}
+            whileHover={{ scale: 1.15 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={handleLike}
+            className={`w-11 h-11 rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-300 ${
+              isLiked 
+                ? 'bg-destructive/90 text-white shadow-lg shadow-destructive/30' 
+                : 'bg-background/80 text-muted-foreground hover:bg-destructive/90 hover:text-white'
             }`}
           >
-            <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
-          </button>
-          <Link 
-            to={`/product/${product.id}`}
-            onClick={(e) => e.stopPropagation()}
-            className="w-10 h-10 rounded-full bg-muted text-muted-foreground flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+            <motion.div
+              animate={isLiked ? { scale: [1, 1.3, 1] } : {}}
+              transition={{ duration: 0.3 }}
+            >
+              <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
+            </motion.div>
+          </motion.button>
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : 20 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
           >
-            <Eye className="w-5 h-5" />
-          </Link>
+            <Link 
+              to={`/product/${product.id}`}
+              onClick={(e) => e.stopPropagation()}
+              className="w-11 h-11 rounded-full bg-background/80 backdrop-blur-sm text-muted-foreground flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+            >
+              <Eye className="w-5 h-5" />
+            </Link>
+          </motion.div>
         </div>
 
         {/* Image Container */}
-        <div className="relative h-64 overflow-hidden">
-          <div className={`absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/50 z-10 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`} />
-          <img
+        <div className="relative h-56 sm:h-64 overflow-hidden">
+          {/* Gradient Overlay */}
+          <motion.div 
+            className="absolute inset-0 z-10 pointer-events-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isHovered ? 1 : 0 }}
+            transition={{ duration: 0.4 }}
+            style={{
+              background: 'linear-gradient(to top, hsl(var(--background) / 0.8), transparent 50%)',
+            }}
+          />
+          
+          {/* Product Image */}
+          <motion.img
             ref={imageRef}
             src={product.image}
             alt={language === 'ar' ? product.nameAr : product.name}
-            className={`w-full h-full object-cover transition-all duration-500 ${isHovered ? 'scale-110' : 'scale-100'}`}
+            className="w-full h-full object-cover"
+            animate={{ 
+              scale: isHovered ? 1.1 : 1,
+              filter: isHovered ? 'brightness(1.05)' : 'brightness(1)'
+            }}
+            transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
           />
           
-          {/* Neon Glow Effect on Hover */}
-          <div className={`absolute inset-0 transition-opacity duration-500 ${isHovered ? 'opacity-100' : 'opacity-0'}`} style={{
-            background: 'radial-gradient(ellipse at center bottom, hsl(var(--neon-cyan) / 0.2), transparent 70%)',
-          }} />
+          {/* Shimmer Effect on Hover */}
+          <motion.div
+            className="absolute inset-0 z-10 pointer-events-none"
+            initial={{ x: '-100%', opacity: 0 }}
+            animate={{ 
+              x: isHovered ? '100%' : '-100%',
+              opacity: isHovered ? [0, 0.3, 0] : 0
+            }}
+            transition={{ duration: 0.8, ease: 'easeInOut' }}
+            style={{
+              background: 'linear-gradient(90deg, transparent, hsl(var(--primary) / 0.2), transparent)',
+            }}
+          />
+
+          {/* Bottom Glow Effect */}
+          <motion.div 
+            className="absolute bottom-0 left-0 right-0 h-32 z-5 pointer-events-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isHovered ? 1 : 0 }}
+            transition={{ duration: 0.5 }}
+            style={{
+              background: 'radial-gradient(ellipse at center bottom, hsl(var(--primary) / 0.25), transparent 70%)',
+            }}
+          />
         </div>
 
         {/* Content */}
-        <div className="p-5">
+        <div className="p-5 relative z-10">
           {/* Category */}
-          <span className="text-xs text-primary font-medium uppercase tracking-wider">
+          <motion.span 
+            className="inline-block text-xs text-primary font-semibold uppercase tracking-widest mb-2"
+            animate={{ opacity: isHovered ? 1 : 0.8 }}
+          >
             {language === 'ar' ? product.categoryAr : product.category}
-          </span>
+          </motion.span>
 
           {/* Product Name */}
-          <h3 className="font-display text-lg font-semibold text-foreground mt-2 mb-3 line-clamp-2">
+          <h3 className="font-display text-lg font-bold text-foreground mb-3 line-clamp-2 group-hover:text-primary transition-colors duration-300">
             {language === 'ar' ? product.nameAr : product.name}
           </h3>
+
+          {/* Rating Stars */}
+          <div className="flex items-center gap-1 mb-3">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star 
+                key={star} 
+                className={`w-4 h-4 ${star <= 4 ? 'text-yellow-500 fill-yellow-500' : 'text-muted-foreground/30'}`}
+              />
+            ))}
+            <span className="text-xs text-muted-foreground ml-1">(4.0)</span>
+          </div>
 
           {/* Price */}
           <div className="mb-4">
@@ -133,12 +244,46 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </div>
 
           {/* Add to Cart Button */}
-          <Button variant="neon" className="w-full group/btn" onClick={handleAddToCart}>
-            <ShoppingCart className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
-            {t('addToCart')}
-          </Button>
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Button 
+              variant="neon" 
+              className="w-full group/btn overflow-hidden relative" 
+              onClick={handleAddToCart}
+              disabled={isAddingToCart}
+            >
+              <motion.span
+                className="flex items-center justify-center gap-2"
+                animate={isAddingToCart ? { y: -30, opacity: 0 } : { y: 0, opacity: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ShoppingCart className="w-4 h-4 group-hover/btn:rotate-12 transition-transform duration-300" />
+                {t('addToCart')}
+              </motion.span>
+              <motion.span
+                className="absolute inset-0 flex items-center justify-center"
+                initial={{ y: 30, opacity: 0 }}
+                animate={isAddingToCart ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                ✓ {t('addedToCart')}
+              </motion.span>
+            </Button>
+          </motion.div>
         </div>
-      </div>
+
+        {/* Corner Accent */}
+        <div className="absolute bottom-0 right-0 w-20 h-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+          <div 
+            className="absolute inset-0"
+            style={{
+              background: 'radial-gradient(circle at bottom right, hsl(var(--primary) / 0.15), transparent 70%)',
+            }}
+          />
+        </div>
+      </motion.div>
     </Link>
   );
 };
