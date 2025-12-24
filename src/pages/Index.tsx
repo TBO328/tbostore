@@ -91,7 +91,7 @@ const Index: React.FC = () => {
             initial={{ opacity: 0, x: -100 }}
             animate={{ opacity: 0.15, x: 0 }}
             transition={{ duration: 1, delay: 0.5 }}
-            className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-0 hidden md:block"
+            className="absolute left-4 md:left-16 top-1/4 -translate-y-1/2 z-0 hidden md:block"
           >
             <img 
               src={tboStoreLogo} 
