@@ -71,7 +71,7 @@ const Products: React.FC = () => {
                     onClick={() => setActiveCategory(category)}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className={`px-6 py-2.5 rounded-full font-medium text-sm transition-all duration-300 ${
+                    className={`px-6 py-2.5 rounded-full font-arabic font-medium text-sm transition-all duration-300 ${
                       activeCategory === category
                         ? 'bg-primary text-primary-foreground shadow-neon-cyan'
                         : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground'
