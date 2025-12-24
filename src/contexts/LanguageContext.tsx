@@ -73,6 +73,42 @@ const translations: Translations = {
   relatedProducts: { en: 'Related Products', ar: 'منتجات ذات صلة' },
   inStock: { en: 'In Stock', ar: 'متوفر' },
   outOfStock: { en: 'Out of Stock', ar: 'غير متوفر' },
+
+  // Checkout
+  checkout: { en: 'Checkout', ar: 'إتمام الطلب' },
+  customerInfo: { en: 'Customer Information', ar: 'معلومات العميل' },
+  fullName: { en: 'Full Name', ar: 'الاسم الكامل' },
+  phoneNumber: { en: 'Phone Number', ar: 'رقم الجوال' },
+  address: { en: 'Address', ar: 'العنوان' },
+  paymentMethod: { en: 'Payment Method', ar: 'طريقة الدفع' },
+  stcPay: { en: 'STC Pay', ar: 'STC Pay' },
+  bankTransfer: { en: 'Bank Transfer', ar: 'تحويل بنكي' },
+  transferTo: { en: 'Transfer to', ar: 'حول إلى' },
+  bankName: { en: 'Bank Name', ar: 'اسم البنك' },
+  accountName: { en: 'Account Name', ar: 'اسم صاحب الحساب' },
+  iban: { en: 'IBAN', ar: 'رقم الآيبان' },
+  confirmOrder: { en: 'Confirm Order', ar: 'تأكيد الطلب' },
+  orderSuccess: { en: 'Order Placed Successfully!', ar: 'تم الطلب بنجاح!' },
+  orderNumber: { en: 'Order Number', ar: 'رقم الطلب' },
+  orderSuccessDesc: { en: 'Your order has been placed. We will contact you soon.', ar: 'تم تقديم طلبك. سنتواصل معك قريباً.' },
+  backToHome: { en: 'Back to Home', ar: 'العودة للرئيسية' },
+  pleaseEnterInfo: { en: 'Please fill in all required fields', ar: 'الرجاء ملء جميع الحقول المطلوبة' },
+  orderPlacing: { en: 'Placing Order...', ar: 'جاري تقديم الطلب...' },
+  
+  // Admin Orders
+  orders: { en: 'Orders', ar: 'الطلبات' },
+  manageOrders: { en: 'Manage Orders', ar: 'إدارة الطلبات' },
+  paymentSettings: { en: 'Payment Settings', ar: 'إعدادات الدفع' },
+  noOrders: { en: 'No orders yet', ar: 'لا توجد طلبات بعد' },
+  pending: { en: 'Pending', ar: 'في الانتظار' },
+  confirmed: { en: 'Confirmed', ar: 'مؤكد' },
+  shipped: { en: 'Shipped', ar: 'تم الشحن' },
+  delivered: { en: 'Delivered', ar: 'تم التسليم' },
+  cancelled: { en: 'Cancelled', ar: 'ملغي' },
+  updateStatus: { en: 'Update Status', ar: 'تحديث الحالة' },
+  orderDetails: { en: 'Order Details', ar: 'تفاصيل الطلب' },
+  saveSettings: { en: 'Save Settings', ar: 'حفظ الإعدادات' },
+  settingsSaved: { en: 'Settings saved!', ar: 'تم حفظ الإعدادات!' },
 };
 
 interface LanguageContextType {
