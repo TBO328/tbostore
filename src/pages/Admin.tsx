@@ -98,10 +98,24 @@ const Admin: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [orderDetailsOpen, setOrderDetailsOpen] = useState(false);
 
+  const [adminCheckComplete, setAdminCheckComplete] = useState(false);
+
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/auth');
-    } else if (!authLoading && user && !isAdmin) {
+    if (!authLoading) {
+      if (!user) {
+        navigate('/auth');
+      } else {
+        // Give time for admin role check to complete
+        const timer = setTimeout(() => {
+          setAdminCheckComplete(true);
+        }, 1000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [user, authLoading, navigate]);
+
+  useEffect(() => {
+    if (adminCheckComplete && !isAdmin) {
       toast({
         title: language === 'en' ? 'Access Denied' : 'تم الرفض',
         description: language === 'en' ? 'You do not have admin privileges.' : 'ليس لديك صلاحيات المسؤول.',
@@ -109,7 +123,7 @@ const Admin: React.FC = () => {
       });
       navigate('/');
     }
-  }, [user, isAdmin, authLoading, navigate, toast, language]);
+  }, [adminCheckComplete, isAdmin, navigate, toast, language]);
 
   useEffect(() => {
     if (isAdmin) {
@@ -377,7 +391,7 @@ const Admin: React.FC = () => {
     return statusMap[status]?.[language] || status;
   };
 
-  if (authLoading || loading) {
+  if (authLoading || loading || !adminCheckComplete) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
