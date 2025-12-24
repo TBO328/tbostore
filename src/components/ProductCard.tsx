@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
+import PriceDisplay from '@/components/PriceDisplay';
 import type { Product } from '@/data/products';
 
 interface ProductCardProps {
@@ -123,15 +124,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </h3>
 
           {/* Price */}
-          <div className="flex items-center gap-3 mb-4">
-            <span className="font-display text-xl font-bold text-primary glow-text-cyan">
-              {product.price} ر.س
-            </span>
-            {product.originalPrice && (
-              <span className="text-sm text-muted-foreground line-through">
-                {product.originalPrice} ر.س
-              </span>
-            )}
+          <div className="mb-4">
+            <PriceDisplay 
+              price={product.price} 
+              originalPrice={product.originalPrice} 
+              size="lg" 
+            />
           </div>
 
           {/* Add to Cart Button */}

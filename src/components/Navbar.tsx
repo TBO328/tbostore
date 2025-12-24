@@ -11,6 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 import FlyingCartItem from '@/components/FlyingCartItem';
 import SearchDialog from '@/components/SearchDialog';
 import tboStoreLogo from '@/assets/tbo-store-logo.png';
+import sarSymbol from '@/assets/sar-symbol.png';
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -113,7 +114,16 @@ const Navbar: React.FC = () => {
                 whileTap={{ scale: 0.95 }}
                 className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-muted text-muted-foreground hover:text-foreground transition-colors"
               >
-                <DollarSign className="w-3 h-3" />
+                {currency === 'SAR' ? (
+                  <img 
+                    src={sarSymbol} 
+                    alt="SAR" 
+                    className="w-3 h-3"
+                    style={{ filter: theme === 'light' ? 'brightness(0)' : 'brightness(0) invert(1)' }}
+                  />
+                ) : (
+                  <DollarSign className="w-3 h-3" />
+                )}
                 {currency}
               </motion.button>
 
@@ -289,7 +299,16 @@ const Navbar: React.FC = () => {
                       onClick={() => setCurrency(currency === 'SAR' ? 'USD' : 'SAR')}
                       className="flex items-center gap-2"
                     >
-                      <DollarSign className="w-4 h-4" />
+                      {currency === 'SAR' ? (
+                        <img 
+                          src={sarSymbol} 
+                          alt="SAR" 
+                          className="w-4 h-4"
+                          style={{ filter: theme === 'light' ? 'brightness(0)' : 'brightness(0) invert(1)' }}
+                        />
+                      ) : (
+                        <DollarSign className="w-4 h-4" />
+                      )}
                       {currency}
                     </Button>
                   </motion.div>
