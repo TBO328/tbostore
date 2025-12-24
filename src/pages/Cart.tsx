@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Trash2, Plus, Minus, ArrowLeft, MessageCircle, Smartphone, Building2, Copy, Check, Loader2 } from 'lucide-react';
+import { ShoppingCart, Trash2, Plus, Minus, ArrowLeft, MessageCircle, Building2, Copy, Check, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,6 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import AnimatedSection from '@/components/AnimatedSection';
+import stcPayLogo from '@/assets/stc-pay-logo.png';
 
 const WHATSAPP_NUMBER = '905510070277';
 
@@ -373,7 +374,7 @@ const Cart: React.FC = () => {
                           <div className="flex items-center gap-3">
                             <RadioGroupItem value="stc_pay" id="stc_pay" />
                             <Label htmlFor="stc_pay" className="flex items-center gap-2 cursor-pointer flex-1">
-                              <Smartphone className="w-5 h-5 text-primary" />
+                              <img src={stcPayLogo} alt="STC Pay" className="w-6 h-6 object-contain" />
                               <span className="font-semibold">{t('stcPay')}</span>
                             </Label>
                           </div>
