@@ -9,6 +9,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import AnimatedSection from '@/components/AnimatedSection';
 import ProductCard from '@/components/ProductCard';
+import PriceDisplay from '@/components/PriceDisplay';
 import { toast } from 'sonner';
 import { products } from '@/data/products';
 
@@ -144,16 +145,12 @@ const ProductDetail: React.FC = () => {
                 </h1>
 
                 {/* Price */}
-                <div className="flex items-center gap-4">
-                  <span className="font-display text-3xl font-bold text-primary glow-text-cyan">
-                    {product.price} ر.س
-                  </span>
-                  {product.originalPrice && (
-                    <span className="text-xl text-muted-foreground line-through">
-                      {product.originalPrice} ر.س
-                    </span>
-                  )}
-                </div>
+                <PriceDisplay 
+                  price={product.price} 
+                  originalPrice={product.originalPrice} 
+                  size="xl" 
+                  className="glow-text-cyan"
+                />
 
                 {/* Stock Status */}
                 <div className="flex items-center gap-2">
@@ -211,10 +208,10 @@ const ProductDetail: React.FC = () => {
                         {t('addedToCart')}
                       </>
                     ) : (
-                      <>
+                      <span className="flex items-center">
                         <ShoppingCart className="w-5 h-5 mr-2" />
-                        {t('addToCart')} - {product.price * quantity} ر.س
-                      </>
+                        {t('addToCart')} - <PriceDisplay price={product.price * quantity} size="md" showOriginal={false} />
+                      </span>
                     )}
                   </Button>
                 </motion.div>
