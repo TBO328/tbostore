@@ -145,22 +145,25 @@ const Navbar: React.FC = () => {
               </motion.div>
 
               {/* Language Selector with Animation */}
-              <motion.div className="flex items-center gap-1 bg-muted rounded-lg p-1" layout>
-                <motion.button onClick={() => setLanguage('en')} whileHover={{
-                scale: 1.05
-              }} whileTap={{
-                scale: 0.95
-              }} className={`flex items-center gap-1 px-2 py-1 rounded-md text-sm transition-all duration-300 ${language === 'en' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-                  <span className="text-base">​</span>
-                  <span className="hidden sm:inline">EN</span>
+              <motion.div 
+                className="flex items-center bg-card border border-border rounded-full p-1 shadow-lg"
+                whileHover={{ scale: 1.02 }}
+              >
+                <motion.button 
+                  onClick={() => setLanguage('en')} 
+                  whileHover={{ scale: 1.05 }} 
+                  whileTap={{ scale: 0.95 }} 
+                  className={`flex items-center justify-center px-3 py-1.5 rounded-full text-sm font-bold transition-all duration-300 ${language === 'en' ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}
+                >
+                  EN
                 </motion.button>
-                <motion.button onClick={() => setLanguage('ar')} whileHover={{
-                scale: 1.05
-              }} whileTap={{
-                scale: 0.95
-              }} className={`flex items-center gap-1 px-2 py-1 rounded-md text-sm transition-all duration-300 ${language === 'ar' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-                  <span className="text-base">​</span>
-                  <span className="hidden sm:inline">AR</span>
+                <motion.button 
+                  onClick={() => setLanguage('ar')} 
+                  whileHover={{ scale: 1.05 }} 
+                  whileTap={{ scale: 0.95 }} 
+                  className={`flex items-center justify-center px-3 py-1.5 rounded-full text-sm font-bold transition-all duration-300 ${language === 'ar' ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}
+                >
+                  عربي
                 </motion.button>
               </motion.div>
 
