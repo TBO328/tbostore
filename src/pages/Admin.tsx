@@ -16,10 +16,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import type { Tables } from '@/integrations/supabase/types';
-
 type Product = Tables<'products'>;
 type Coupon = Tables<'coupons'>;
-
 interface Order {
   id: string;
   order_number: string;
@@ -40,21 +38,30 @@ interface Order {
   notes: string | null;
   created_at: string;
 }
-
 interface PaymentSettings {
   stc_pay_number: string;
   bank_name: string;
   bank_account_name: string;
   bank_iban: string;
 }
-
 const Admin: React.FC = () => {
-  const { user, isAdmin, loading: authLoading, signOut } = useAuth();
+  const {
+    user,
+    isAdmin,
+    loading: authLoading,
+    signOut
+  } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const { language, t } = useLanguage();
-  const { formatPrice } = useCurrency();
-
+  const {
+    toast
+  } = useToast();
+  const {
+    language,
+    t
+  } = useLanguage();
+  const {
+    formatPrice
+  } = useCurrency();
   const [products, setProducts] = useState<Product[]>([]);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -65,7 +72,7 @@ const Admin: React.FC = () => {
     stc_pay_number: '',
     bank_name: '',
     bank_account_name: '',
-    bank_iban: '',
+    bank_iban: ''
   });
   const [savingSettings, setSavingSettings] = useState(false);
 
@@ -81,7 +88,7 @@ const Admin: React.FC = () => {
     original_price: '',
     category: '',
     image_url: '',
-    in_stock: true,
+    in_stock: true
   });
 
   // Coupon form state
@@ -91,15 +98,13 @@ const Admin: React.FC = () => {
     code: '',
     discount_percent: '',
     expires_at: '',
-    is_active: true,
+    is_active: true
   });
 
   // Order details dialog
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [orderDetailsOpen, setOrderDetailsOpen] = useState(false);
-
   const [adminCheckComplete, setAdminCheckComplete] = useState(false);
-
   useEffect(() => {
     if (!authLoading) {
       if (!user) {
@@ -113,40 +118,37 @@ const Admin: React.FC = () => {
       }
     }
   }, [user, authLoading, navigate]);
-
   useEffect(() => {
     if (adminCheckComplete && !isAdmin) {
       toast({
         title: language === 'en' ? 'Access Denied' : 'تم الرفض',
         description: language === 'en' ? 'You do not have admin privileges.' : 'ليس لديك صلاحيات المسؤول.',
-        variant: 'destructive',
+        variant: 'destructive'
       });
       navigate('/');
     }
   }, [adminCheckComplete, isAdmin, navigate, toast, language]);
-
   useEffect(() => {
     if (isAdmin) {
       fetchData();
     }
   }, [isAdmin]);
-
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [productsRes, couponsRes, ordersRes, settingsRes] = await Promise.all([
-        supabase.from('products').select('*').order('created_at', { ascending: false }),
-        supabase.from('coupons').select('*').order('created_at', { ascending: false }),
-        supabase.from('orders').select('*').order('created_at', { ascending: false }),
-        supabase.from('payment_settings').select('*'),
-      ]);
-
+      const [productsRes, couponsRes, ordersRes, settingsRes] = await Promise.all([supabase.from('products').select('*').order('created_at', {
+        ascending: false
+      }), supabase.from('coupons').select('*').order('created_at', {
+        ascending: false
+      }), supabase.from('orders').select('*').order('created_at', {
+        ascending: false
+      }), supabase.from('payment_settings').select('*')]);
       if (productsRes.data) setProducts(productsRes.data);
       if (couponsRes.data) setCoupons(couponsRes.data);
       if (ordersRes.data) {
-        const typedOrders: Order[] = ordersRes.data.map((order) => ({
+        const typedOrders: Order[] = ordersRes.data.map(order => ({
           ...order,
-          items: order.items as Order['items'],
+          items: order.items as Order['items']
         }));
         setOrders(typedOrders);
       }
@@ -155,9 +157,12 @@ const Admin: React.FC = () => {
           stc_pay_number: '',
           bank_name: '',
           bank_account_name: '',
-          bank_iban: '',
+          bank_iban: ''
         };
-        settingsRes.data.forEach((item: { setting_key: string; setting_value: string }) => {
+        settingsRes.data.forEach((item: {
+          setting_key: string;
+          setting_value: string;
+        }) => {
           if (item.setting_key in settings) {
             settings[item.setting_key as keyof PaymentSettings] = item.setting_value;
           }
@@ -174,7 +179,6 @@ const Admin: React.FC = () => {
   // Product handlers
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     const productData = {
       name_en: productForm.name_en,
       name_ar: productForm.name_ar,
@@ -184,33 +188,38 @@ const Admin: React.FC = () => {
       original_price: productForm.original_price ? parseFloat(productForm.original_price) : null,
       category: productForm.category,
       image_url: productForm.image_url || null,
-      in_stock: productForm.in_stock,
+      in_stock: productForm.in_stock
     };
-
     try {
       if (editingProduct) {
-        const { error } = await supabase
-          .from('products')
-          .update(productData)
-          .eq('id', editingProduct.id);
-        
+        const {
+          error
+        } = await supabase.from('products').update(productData).eq('id', editingProduct.id);
         if (error) throw error;
-        toast({ title: language === 'en' ? 'Product updated!' : 'تم تحديث المنتج!' });
+        toast({
+          title: language === 'en' ? 'Product updated!' : 'تم تحديث المنتج!'
+        });
       } else {
-        const { error } = await supabase.from('products').insert(productData);
+        const {
+          error
+        } = await supabase.from('products').insert(productData);
         if (error) throw error;
-        toast({ title: language === 'en' ? 'Product created!' : 'تم إنشاء المنتج!' });
+        toast({
+          title: language === 'en' ? 'Product created!' : 'تم إنشاء المنتج!'
+        });
       }
-      
       setProductDialogOpen(false);
       resetProductForm();
       fetchData();
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive'
+      });
     }
   };
-
   const resetProductForm = () => {
     setEditingProduct(null);
     setProductForm({
@@ -222,10 +231,9 @@ const Admin: React.FC = () => {
       original_price: '',
       category: '',
       image_url: '',
-      in_stock: true,
+      in_stock: true
     });
   };
-
   const editProduct = (product: Product) => {
     setEditingProduct(product);
     setProductForm({
@@ -237,19 +245,25 @@ const Admin: React.FC = () => {
       original_price: product.original_price?.toString() || '',
       category: product.category,
       image_url: product.image_url || '',
-      in_stock: product.in_stock ?? true,
+      in_stock: product.in_stock ?? true
     });
     setProductDialogOpen(true);
   };
-
   const deleteProduct = async (id: string) => {
     if (!confirm(language === 'en' ? 'Delete this product?' : 'حذف هذا المنتج؟')) return;
-    
-    const { error } = await supabase.from('products').delete().eq('id', id);
+    const {
+      error
+    } = await supabase.from('products').delete().eq('id', id);
     if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive'
+      });
     } else {
-      toast({ title: language === 'en' ? 'Product deleted' : 'تم حذف المنتج' });
+      toast({
+        title: language === 'en' ? 'Product deleted' : 'تم حذف المنتج'
+      });
       fetchData();
     }
   };
@@ -257,86 +271,100 @@ const Admin: React.FC = () => {
   // Coupon handlers
   const handleCouponSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     const couponData = {
       code: couponForm.code.toUpperCase(),
       discount_percent: parseInt(couponForm.discount_percent),
       expires_at: couponForm.expires_at || null,
-      is_active: couponForm.is_active,
+      is_active: couponForm.is_active
     };
-
     try {
       if (editingCoupon) {
-        const { error } = await supabase
-          .from('coupons')
-          .update(couponData)
-          .eq('id', editingCoupon.id);
-        
+        const {
+          error
+        } = await supabase.from('coupons').update(couponData).eq('id', editingCoupon.id);
         if (error) throw error;
-        toast({ title: language === 'en' ? 'Coupon updated!' : 'تم تحديث الكوبون!' });
+        toast({
+          title: language === 'en' ? 'Coupon updated!' : 'تم تحديث الكوبون!'
+        });
       } else {
-        const { error } = await supabase.from('coupons').insert(couponData);
+        const {
+          error
+        } = await supabase.from('coupons').insert(couponData);
         if (error) throw error;
-        toast({ title: language === 'en' ? 'Coupon created!' : 'تم إنشاء الكوبون!' });
+        toast({
+          title: language === 'en' ? 'Coupon created!' : 'تم إنشاء الكوبون!'
+        });
       }
-      
       setCouponDialogOpen(false);
       resetCouponForm();
       fetchData();
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive'
+      });
     }
   };
-
   const resetCouponForm = () => {
     setEditingCoupon(null);
     setCouponForm({
       code: '',
       discount_percent: '',
       expires_at: '',
-      is_active: true,
+      is_active: true
     });
   };
-
   const editCoupon = (coupon: Coupon) => {
     setEditingCoupon(coupon);
     setCouponForm({
       code: coupon.code,
       discount_percent: coupon.discount_percent.toString(),
       expires_at: coupon.expires_at ? new Date(coupon.expires_at).toISOString().split('T')[0] : '',
-      is_active: coupon.is_active ?? true,
+      is_active: coupon.is_active ?? true
     });
     setCouponDialogOpen(true);
   };
-
   const deleteCoupon = async (id: string) => {
     if (!confirm(language === 'en' ? 'Delete this coupon?' : 'حذف هذا الكوبون؟')) return;
-    
-    const { error } = await supabase.from('coupons').delete().eq('id', id);
+    const {
+      error
+    } = await supabase.from('coupons').delete().eq('id', id);
     if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive'
+      });
     } else {
-      toast({ title: language === 'en' ? 'Coupon deleted' : 'تم حذف الكوبون' });
+      toast({
+        title: language === 'en' ? 'Coupon deleted' : 'تم حذف الكوبون'
+      });
       fetchData();
     }
   };
 
   // Order handlers
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
-    const { error } = await supabase
-      .from('orders')
-      .update({ status: newStatus })
-      .eq('id', orderId);
-    
+    const {
+      error
+    } = await supabase.from('orders').update({
+      status: newStatus
+    }).eq('id', orderId);
     if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive'
+      });
     } else {
-      toast({ title: language === 'en' ? 'Status updated!' : 'تم تحديث الحالة!' });
+      toast({
+        title: language === 'en' ? 'Status updated!' : 'تم تحديث الحالة!'
+      });
       fetchData();
     }
   };
-
   const viewOrderDetails = (order: Order) => {
     setSelectedOrder(order);
     setOrderDetailsOpen(true);
@@ -348,66 +376,86 @@ const Admin: React.FC = () => {
     try {
       const updates = Object.entries(paymentSettings).map(([key, value]) => ({
         setting_key: key,
-        setting_value: value,
+        setting_value: value
       }));
-
       for (const update of updates) {
-        const { error } = await supabase
-          .from('payment_settings')
-          .update({ setting_value: update.setting_value })
-          .eq('setting_key', update.setting_key);
-        
+        const {
+          error
+        } = await supabase.from('payment_settings').update({
+          setting_value: update.setting_value
+        }).eq('setting_key', update.setting_key);
         if (error) throw error;
       }
-
-      toast({ title: t('settingsSaved') });
+      toast({
+        title: t('settingsSaved')
+      });
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive'
+      });
     } finally {
       setSavingSettings(false);
     }
   };
-
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-500/20 text-yellow-400';
-      case 'confirmed': return 'bg-blue-500/20 text-blue-400';
-      case 'shipped': return 'bg-purple-500/20 text-purple-400';
-      case 'delivered': return 'bg-green-500/20 text-green-400';
-      case 'cancelled': return 'bg-red-500/20 text-red-400';
-      default: return 'bg-muted text-muted-foreground';
+      case 'pending':
+        return 'bg-yellow-500/20 text-yellow-400';
+      case 'confirmed':
+        return 'bg-blue-500/20 text-blue-400';
+      case 'shipped':
+        return 'bg-purple-500/20 text-purple-400';
+      case 'delivered':
+        return 'bg-green-500/20 text-green-400';
+      case 'cancelled':
+        return 'bg-red-500/20 text-red-400';
+      default:
+        return 'bg-muted text-muted-foreground';
     }
   };
-
   const getStatusText = (status: string) => {
-    const statusMap: Record<string, { en: string; ar: string }> = {
-      pending: { en: 'Pending', ar: 'في الانتظار' },
-      confirmed: { en: 'Confirmed', ar: 'مؤكد' },
-      shipped: { en: 'Shipped', ar: 'تم الشحن' },
-      delivered: { en: 'Delivered', ar: 'تم التسليم' },
-      cancelled: { en: 'Cancelled', ar: 'ملغي' },
+    const statusMap: Record<string, {
+      en: string;
+      ar: string;
+    }> = {
+      pending: {
+        en: 'Pending',
+        ar: 'في الانتظار'
+      },
+      confirmed: {
+        en: 'Confirmed',
+        ar: 'مؤكد'
+      },
+      shipped: {
+        en: 'Shipped',
+        ar: 'تم الشحن'
+      },
+      delivered: {
+        en: 'Delivered',
+        ar: 'تم التسليم'
+      },
+      cancelled: {
+        en: 'Cancelled',
+        ar: 'ملغي'
+      }
     };
     return statusMap[status]?.[language] || status;
   };
-
   if (authLoading || loading || !adminCheckComplete) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+    return <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+      </div>;
   }
-
   if (!isAdmin) return null;
 
   // Calculate stats
   const totalRevenue = orders.reduce((sum, order) => sum + order.total_amount, 0);
   const pendingOrders = orders.filter(o => o.status === 'pending').length;
   const deliveredOrders = orders.filter(o => o.status === 'delivered').length;
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+  return <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       {/* Header */}
       <header className="border-b border-border bg-card/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -428,8 +476,8 @@ const Admin: React.FC = () => {
           </div>
           <div className="flex items-center gap-4">
             <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-sm font-medium text-primary">{user?.email}</span>
+              <div className="w-2 h-2 rounded-full animate-pulse bg-[#53e45f]" />
+              <span className="text-sm font-medium text-primary-foreground">{user?.email}</span>
             </div>
             <Button variant="outline" size="sm" onClick={signOut} className="gap-2">
               <LogOut className="w-4 h-4" />
@@ -442,12 +490,15 @@ const Admin: React.FC = () => {
       <main className="container mx-auto px-4 py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0 }}
-            className="bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl p-4 border border-primary/20"
-          >
+          <motion.div initial={{
+          opacity: 0,
+          y: 20
+        }} animate={{
+          opacity: 1,
+          y: 0
+        }} transition={{
+          delay: 0
+        }} className="bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl p-4 border border-primary/20">
             <div className="flex items-center justify-between mb-2">
               <ShoppingBag className="w-5 h-5 text-primary" />
               <span className="text-xs text-primary bg-primary/20 px-2 py-0.5 rounded-full">
@@ -458,12 +509,15 @@ const Admin: React.FC = () => {
             <p className="text-xs text-muted-foreground">{language === 'en' ? 'Orders' : 'طلب'}</p>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-gradient-to-br from-yellow-500/20 to-yellow-500/5 rounded-2xl p-4 border border-yellow-500/20"
-          >
+          <motion.div initial={{
+          opacity: 0,
+          y: 20
+        }} animate={{
+          opacity: 1,
+          y: 0
+        }} transition={{
+          delay: 0.1
+        }} className="bg-gradient-to-br from-yellow-500/20 to-yellow-500/5 rounded-2xl p-4 border border-yellow-500/20">
             <div className="flex items-center justify-between mb-2">
               <TrendingUp className="w-5 h-5 text-yellow-500" />
               <span className="text-xs text-yellow-500 bg-yellow-500/20 px-2 py-0.5 rounded-full">
@@ -474,12 +528,15 @@ const Admin: React.FC = () => {
             <p className="text-xs text-muted-foreground">{language === 'en' ? 'Awaiting' : 'بانتظار'}</p>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-gradient-to-br from-green-500/20 to-green-500/5 rounded-2xl p-4 border border-green-500/20"
-          >
+          <motion.div initial={{
+          opacity: 0,
+          y: 20
+        }} animate={{
+          opacity: 1,
+          y: 0
+        }} transition={{
+          delay: 0.2
+        }} className="bg-gradient-to-br from-green-500/20 to-green-500/5 rounded-2xl p-4 border border-green-500/20">
             <div className="flex items-center justify-between mb-2">
               <Package className="w-5 h-5 text-green-500" />
               <span className="text-xs text-green-500 bg-green-500/20 px-2 py-0.5 rounded-full">
@@ -490,12 +547,15 @@ const Admin: React.FC = () => {
             <p className="text-xs text-muted-foreground">{language === 'en' ? 'Delivered' : 'تم التسليم'}</p>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-gradient-to-br from-secondary/20 to-secondary/5 rounded-2xl p-4 border border-secondary/20"
-          >
+          <motion.div initial={{
+          opacity: 0,
+          y: 20
+        }} animate={{
+          opacity: 1,
+          y: 0
+        }} transition={{
+          delay: 0.3
+        }} className="bg-gradient-to-br from-secondary/20 to-secondary/5 rounded-2xl p-4 border border-secondary/20">
             <div className="flex items-center justify-between mb-2">
               <DollarSign className="w-5 h-5 text-secondary" />
               <span className="text-xs text-secondary bg-secondary/20 px-2 py-0.5 rounded-full">
@@ -540,13 +600,13 @@ const Admin: React.FC = () => {
             </div>
 
             <div className="grid gap-4">
-              {orders.map((order) => (
-                <motion.div
-                  key={order.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-card rounded-xl border border-border p-4"
-                >
+              {orders.map(order => <motion.div key={order.id} initial={{
+              opacity: 0,
+              y: 10
+            }} animate={{
+              opacity: 1,
+              y: 0
+            }} className="bg-card rounded-xl border border-border p-4">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
@@ -566,7 +626,7 @@ const Admin: React.FC = () => {
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Select value={order.status} onValueChange={(value) => updateOrderStatus(order.id, value)}>
+                      <Select value={order.status} onValueChange={value => updateOrderStatus(order.id, value)}>
                         <SelectTrigger className="w-[140px]">
                           <SelectValue />
                         </SelectTrigger>
@@ -583,13 +643,10 @@ const Admin: React.FC = () => {
                       </Button>
                     </div>
                   </div>
-                </motion.div>
-              ))}
-              {orders.length === 0 && (
-                <p className="text-center text-muted-foreground py-8">
+                </motion.div>)}
+              {orders.length === 0 && <p className="text-center text-muted-foreground py-8">
                   {t('noOrders')}
-                </p>
-              )}
+                </p>}
             </div>
           </TabsContent>
 
@@ -599,10 +656,10 @@ const Admin: React.FC = () => {
               <h2 className="text-xl font-semibold text-foreground">
                 {language === 'en' ? 'Manage Products' : 'إدارة المنتجات'}
               </h2>
-              <Dialog open={productDialogOpen} onOpenChange={(open) => {
-                setProductDialogOpen(open);
-                if (!open) resetProductForm();
-              }}>
+              <Dialog open={productDialogOpen} onOpenChange={open => {
+              setProductDialogOpen(open);
+              if (!open) resetProductForm();
+            }}>
                 <DialogTrigger asChild>
                   <Button variant="neon-filled">
                     <Plus className="w-4 h-4 mr-2" />
@@ -612,94 +669,81 @@ const Admin: React.FC = () => {
                 <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>
-                      {editingProduct 
-                        ? (language === 'en' ? 'Edit Product' : 'تعديل المنتج')
-                        : (language === 'en' ? 'Add Product' : 'إضافة منتج')
-                      }
+                      {editingProduct ? language === 'en' ? 'Edit Product' : 'تعديل المنتج' : language === 'en' ? 'Add Product' : 'إضافة منتج'}
                     </DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleProductSubmit} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>Name (EN)</Label>
-                        <Input
-                          value={productForm.name_en}
-                          onChange={(e) => setProductForm({ ...productForm, name_en: e.target.value })}
-                          required
-                        />
+                        <Input value={productForm.name_en} onChange={e => setProductForm({
+                        ...productForm,
+                        name_en: e.target.value
+                      })} required />
                       </div>
                       <div className="space-y-2">
                         <Label>Name (AR)</Label>
-                        <Input
-                          value={productForm.name_ar}
-                          onChange={(e) => setProductForm({ ...productForm, name_ar: e.target.value })}
-                          required
-                          dir="rtl"
-                        />
+                        <Input value={productForm.name_ar} onChange={e => setProductForm({
+                        ...productForm,
+                        name_ar: e.target.value
+                      })} required dir="rtl" />
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>Description (EN)</Label>
-                        <Textarea
-                          value={productForm.description_en}
-                          onChange={(e) => setProductForm({ ...productForm, description_en: e.target.value })}
-                        />
+                        <Textarea value={productForm.description_en} onChange={e => setProductForm({
+                        ...productForm,
+                        description_en: e.target.value
+                      })} />
                       </div>
                       <div className="space-y-2">
                         <Label>Description (AR)</Label>
-                        <Textarea
-                          value={productForm.description_ar}
-                          onChange={(e) => setProductForm({ ...productForm, description_ar: e.target.value })}
-                          dir="rtl"
-                        />
+                        <Textarea value={productForm.description_ar} onChange={e => setProductForm({
+                        ...productForm,
+                        description_ar: e.target.value
+                      })} dir="rtl" />
                       </div>
                     </div>
                     <div className="grid grid-cols-3 gap-4">
                       <div className="space-y-2">
                         <Label>Price</Label>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          value={productForm.price}
-                          onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
-                          required
-                        />
+                        <Input type="number" step="0.01" value={productForm.price} onChange={e => setProductForm({
+                        ...productForm,
+                        price: e.target.value
+                      })} required />
                       </div>
                       <div className="space-y-2">
                         <Label>Original Price</Label>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          value={productForm.original_price}
-                          onChange={(e) => setProductForm({ ...productForm, original_price: e.target.value })}
-                        />
+                        <Input type="number" step="0.01" value={productForm.original_price} onChange={e => setProductForm({
+                        ...productForm,
+                        original_price: e.target.value
+                      })} />
                       </div>
                       <div className="space-y-2">
                         <Label>Category</Label>
-                        <Input
-                          value={productForm.category}
-                          onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
-                          required
-                        />
+                        <Input value={productForm.category} onChange={e => setProductForm({
+                        ...productForm,
+                        category: e.target.value
+                      })} required />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label>Image URL</Label>
-                      <Input
-                        value={productForm.image_url}
-                        onChange={(e) => setProductForm({ ...productForm, image_url: e.target.value })}
-                      />
+                      <Input value={productForm.image_url} onChange={e => setProductForm({
+                      ...productForm,
+                      image_url: e.target.value
+                    })} />
                     </div>
                     <div className="flex items-center gap-2">
-                      <Switch
-                        checked={productForm.in_stock}
-                        onCheckedChange={(checked) => setProductForm({ ...productForm, in_stock: checked })}
-                      />
+                      <Switch checked={productForm.in_stock} onCheckedChange={checked => setProductForm({
+                      ...productForm,
+                      in_stock: checked
+                    })} />
                       <Label>In Stock</Label>
                     </div>
                     <Button type="submit" variant="neon-filled" className="w-full">
-                      {editingProduct ? (language === 'en' ? 'Update' : 'تحديث') : (language === 'en' ? 'Create' : 'إنشاء')}
+                      {editingProduct ? language === 'en' ? 'Update' : 'تحديث' : language === 'en' ? 'Create' : 'إنشاء'}
                     </Button>
                   </form>
                 </DialogContent>
@@ -707,20 +751,14 @@ const Admin: React.FC = () => {
             </div>
 
             <div className="grid gap-4">
-              {products.map((product) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-card rounded-xl border border-border p-4 flex items-center gap-4"
-                >
-                  {product.image_url && (
-                    <img
-                      src={product.image_url}
-                      alt={product.name_en}
-                      className="w-16 h-16 rounded-lg object-cover"
-                    />
-                  )}
+              {products.map(product => <motion.div key={product.id} initial={{
+              opacity: 0,
+              y: 10
+            }} animate={{
+              opacity: 1,
+              y: 0
+            }} className="bg-card rounded-xl border border-border p-4 flex items-center gap-4">
+                  {product.image_url && <img src={product.image_url} alt={product.name_en} className="w-16 h-16 rounded-lg object-cover" />}
                   <div className="flex-1">
                     <h3 className="font-semibold text-foreground">{product.name_en}</h3>
                     <p className="text-sm text-muted-foreground">{product.category}</p>
@@ -737,13 +775,10 @@ const Admin: React.FC = () => {
                       <Trash2 className="w-4 h-4 text-destructive" />
                     </Button>
                   </div>
-                </motion.div>
-              ))}
-              {products.length === 0 && (
-                <p className="text-center text-muted-foreground py-8">
+                </motion.div>)}
+              {products.length === 0 && <p className="text-center text-muted-foreground py-8">
                   {language === 'en' ? 'No products yet' : 'لا توجد منتجات بعد'}
-                </p>
-              )}
+                </p>}
             </div>
           </TabsContent>
 
@@ -753,10 +788,10 @@ const Admin: React.FC = () => {
               <h2 className="text-xl font-semibold text-foreground">
                 {language === 'en' ? 'Manage Coupons' : 'إدارة الكوبونات'}
               </h2>
-              <Dialog open={couponDialogOpen} onOpenChange={(open) => {
-                setCouponDialogOpen(open);
-                if (!open) resetCouponForm();
-              }}>
+              <Dialog open={couponDialogOpen} onOpenChange={open => {
+              setCouponDialogOpen(open);
+              if (!open) resetCouponForm();
+            }}>
                 <DialogTrigger asChild>
                   <Button variant="neon-filled">
                     <Plus className="w-4 h-4 mr-2" />
@@ -766,50 +801,40 @@ const Admin: React.FC = () => {
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>
-                      {editingCoupon 
-                        ? (language === 'en' ? 'Edit Coupon' : 'تعديل الكوبون')
-                        : (language === 'en' ? 'Add Coupon' : 'إضافة كوبون')
-                      }
+                      {editingCoupon ? language === 'en' ? 'Edit Coupon' : 'تعديل الكوبون' : language === 'en' ? 'Add Coupon' : 'إضافة كوبون'}
                     </DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleCouponSubmit} className="space-y-4">
                     <div className="space-y-2">
                       <Label>Code</Label>
-                      <Input
-                        value={couponForm.code}
-                        onChange={(e) => setCouponForm({ ...couponForm, code: e.target.value })}
-                        placeholder="e.g., SAVE20"
-                        required
-                      />
+                      <Input value={couponForm.code} onChange={e => setCouponForm({
+                      ...couponForm,
+                      code: e.target.value
+                    })} placeholder="e.g., SAVE20" required />
                     </div>
                     <div className="space-y-2">
                       <Label>Discount (%)</Label>
-                      <Input
-                        type="number"
-                        min="1"
-                        max="100"
-                        value={couponForm.discount_percent}
-                        onChange={(e) => setCouponForm({ ...couponForm, discount_percent: e.target.value })}
-                        required
-                      />
+                      <Input type="number" min="1" max="100" value={couponForm.discount_percent} onChange={e => setCouponForm({
+                      ...couponForm,
+                      discount_percent: e.target.value
+                    })} required />
                     </div>
                     <div className="space-y-2">
                       <Label>Expires At (optional)</Label>
-                      <Input
-                        type="date"
-                        value={couponForm.expires_at}
-                        onChange={(e) => setCouponForm({ ...couponForm, expires_at: e.target.value })}
-                      />
+                      <Input type="date" value={couponForm.expires_at} onChange={e => setCouponForm({
+                      ...couponForm,
+                      expires_at: e.target.value
+                    })} />
                     </div>
                     <div className="flex items-center gap-2">
-                      <Switch
-                        checked={couponForm.is_active}
-                        onCheckedChange={(checked) => setCouponForm({ ...couponForm, is_active: checked })}
-                      />
+                      <Switch checked={couponForm.is_active} onCheckedChange={checked => setCouponForm({
+                      ...couponForm,
+                      is_active: checked
+                    })} />
                       <Label>Active</Label>
                     </div>
                     <Button type="submit" variant="neon-filled" className="w-full">
-                      {editingCoupon ? (language === 'en' ? 'Update' : 'تحديث') : (language === 'en' ? 'Create' : 'إنشاء')}
+                      {editingCoupon ? language === 'en' ? 'Update' : 'تحديث' : language === 'en' ? 'Create' : 'إنشاء'}
                     </Button>
                   </form>
                 </DialogContent>
@@ -817,13 +842,13 @@ const Admin: React.FC = () => {
             </div>
 
             <div className="grid gap-4">
-              {coupons.map((coupon) => (
-                <motion.div
-                  key={coupon.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-card rounded-xl border border-border p-4 flex items-center gap-4"
-                >
+              {coupons.map(coupon => <motion.div key={coupon.id} initial={{
+              opacity: 0,
+              y: 10
+            }} animate={{
+              opacity: 1,
+              y: 0
+            }} className="bg-card rounded-xl border border-border p-4 flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center">
                     <Ticket className="w-6 h-6 text-primary" />
                   </div>
@@ -845,13 +870,10 @@ const Admin: React.FC = () => {
                       <Trash2 className="w-4 h-4 text-destructive" />
                     </Button>
                   </div>
-                </motion.div>
-              ))}
-              {coupons.length === 0 && (
-                <p className="text-center text-muted-foreground py-8">
+                </motion.div>)}
+              {coupons.length === 0 && <p className="text-center text-muted-foreground py-8">
                   {language === 'en' ? 'No coupons yet' : 'لا توجد كوبونات بعد'}
-                </p>
-              )}
+                </p>}
             </div>
           </TabsContent>
 
@@ -870,11 +892,10 @@ const Admin: React.FC = () => {
                   </h3>
                   <div className="space-y-2">
                     <Label>{language === 'en' ? 'STC Pay Number' : 'رقم STC Pay'}</Label>
-                    <Input
-                      value={paymentSettings.stc_pay_number}
-                      onChange={(e) => setPaymentSettings({ ...paymentSettings, stc_pay_number: e.target.value })}
-                      placeholder="05xxxxxxxx"
-                    />
+                    <Input value={paymentSettings.stc_pay_number} onChange={e => setPaymentSettings({
+                    ...paymentSettings,
+                    stc_pay_number: e.target.value
+                  })} placeholder="05xxxxxxxx" />
                   </div>
                 </div>
 
@@ -886,45 +907,33 @@ const Admin: React.FC = () => {
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <Label>{t('bankName')}</Label>
-                      <Input
-                        value={paymentSettings.bank_name}
-                        onChange={(e) => setPaymentSettings({ ...paymentSettings, bank_name: e.target.value })}
-                        placeholder={language === 'ar' ? 'مثال: الراجحي' : 'e.g., Al Rajhi Bank'}
-                      />
+                      <Input value={paymentSettings.bank_name} onChange={e => setPaymentSettings({
+                      ...paymentSettings,
+                      bank_name: e.target.value
+                    })} placeholder={language === 'ar' ? 'مثال: الراجحي' : 'e.g., Al Rajhi Bank'} />
                     </div>
                     <div className="space-y-2">
                       <Label>{t('accountName')}</Label>
-                      <Input
-                        value={paymentSettings.bank_account_name}
-                        onChange={(e) => setPaymentSettings({ ...paymentSettings, bank_account_name: e.target.value })}
-                        placeholder={language === 'ar' ? 'اسم صاحب الحساب' : 'Account holder name'}
-                      />
+                      <Input value={paymentSettings.bank_account_name} onChange={e => setPaymentSettings({
+                      ...paymentSettings,
+                      bank_account_name: e.target.value
+                    })} placeholder={language === 'ar' ? 'اسم صاحب الحساب' : 'Account holder name'} />
                     </div>
                     <div className="space-y-2">
                       <Label>{t('iban')}</Label>
-                      <Input
-                        value={paymentSettings.bank_iban}
-                        onChange={(e) => setPaymentSettings({ ...paymentSettings, bank_iban: e.target.value })}
-                        placeholder="SA..."
-                      />
+                      <Input value={paymentSettings.bank_iban} onChange={e => setPaymentSettings({
+                      ...paymentSettings,
+                      bank_iban: e.target.value
+                    })} placeholder="SA..." />
                     </div>
                   </div>
                 </div>
 
-                <Button 
-                  variant="neon-filled" 
-                  onClick={savePaymentSettings}
-                  disabled={savingSettings}
-                  className="w-full"
-                >
-                  {savingSettings ? (
-                    <>
+                <Button variant="neon-filled" onClick={savePaymentSettings} disabled={savingSettings} className="w-full">
+                  {savingSettings ? <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       {language === 'en' ? 'Saving...' : 'جاري الحفظ...'}
-                    </>
-                  ) : (
-                    t('saveSettings')
-                  )}
+                    </> : t('saveSettings')}
                 </Button>
               </div>
             </div>
@@ -938,8 +947,7 @@ const Admin: React.FC = () => {
           <DialogHeader>
             <DialogTitle>{t('orderDetails')}</DialogTitle>
           </DialogHeader>
-          {selectedOrder && (
-            <div className="space-y-6">
+          {selectedOrder && <div className="space-y-6">
               {/* Order Info */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -964,16 +972,14 @@ const Admin: React.FC = () => {
               <div>
                 <h4 className="font-semibold mb-3">{language === 'en' ? 'Items' : 'المنتجات'}</h4>
                 <div className="space-y-2">
-                  {selectedOrder.items.map((item, index) => (
-                    <div key={index} className="flex items-center gap-3 p-2 bg-muted/50 rounded-lg">
+                  {selectedOrder.items.map((item, index) => <div key={index} className="flex items-center gap-3 p-2 bg-muted/50 rounded-lg">
                       <img src={item.image} alt={item.name} className="w-12 h-12 rounded object-cover" />
                       <div className="flex-1">
                         <p className="font-medium">{language === 'ar' ? item.nameAr : item.name}</p>
                         <p className="text-sm text-muted-foreground">x{item.quantity}</p>
                       </div>
                       <p className="font-medium">{formatPrice(item.price * item.quantity)}</p>
-                    </div>
-                  ))}
+                    </div>)}
                 </div>
               </div>
 
@@ -990,12 +996,9 @@ const Admin: React.FC = () => {
                   <span className="text-primary">{formatPrice(selectedOrder.total_amount)}</span>
                 </div>
               </div>
-            </div>
-          )}
+            </div>}
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>;
 };
-
 export default Admin;
