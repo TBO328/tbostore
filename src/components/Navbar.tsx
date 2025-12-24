@@ -12,25 +12,48 @@ import FlyingCartItem from '@/components/FlyingCartItem';
 import SearchDialog from '@/components/SearchDialog';
 import tboStoreLogo from '@/assets/tbo-store-logo.png';
 import sarSymbol from '@/assets/sar-symbol.png';
-
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const { language, setLanguage, t } = useLanguage();
-  const { getTotalItems, cartIconRef, flyingItem } = useCart();
-  const { theme, toggleTheme } = useTheme();
-  const { currency, setCurrency } = useCurrency();
-  const { user, isAdmin } = useAuth();
+  const {
+    language,
+    setLanguage,
+    t
+  } = useLanguage();
+  const {
+    getTotalItems,
+    cartIconRef,
+    flyingItem
+  } = useCart();
+  const {
+    theme,
+    toggleTheme
+  } = useTheme();
+  const {
+    currency,
+    setCurrency
+  } = useCurrency();
+  const {
+    user,
+    isAdmin
+  } = useAuth();
   const location = useLocation();
-
-  const navLinks = [
-    { key: 'home', to: '/' },
-    { key: 'products', to: '/products' },
-    { key: 'about', to: '/about' },
-    { key: 'reviews', to: '/reviews' },
-    { key: 'contact', to: '/contact' },
-  ];
-
+  const navLinks = [{
+    key: 'home',
+    to: '/'
+  }, {
+    key: 'products',
+    to: '/products'
+  }, {
+    key: 'about',
+    to: '/about'
+  }, {
+    key: 'reviews',
+    to: '/reviews'
+  }, {
+    key: 'contact',
+    to: '/contact'
+  }];
   const isActive = (path: string) => location.pathname === path;
   const itemCount = getTotalItems();
 
@@ -38,22 +61,23 @@ const Navbar: React.FC = () => {
   const getCartPosition = () => {
     if (cartIconRef.current) {
       const rect = cartIconRef.current.getBoundingClientRect();
-      return { x: rect.left + rect.width / 2 - 40, y: rect.top + rect.height / 2 - 40 };
+      return {
+        x: rect.left + rect.width / 2 - 40,
+        y: rect.top + rect.height / 2 - 40
+      };
     }
-    return { x: window.innerWidth - 100, y: 50 };
+    return {
+      x: window.innerWidth - 100,
+      y: 50
+    };
   };
-
-  return (
-    <>
+  return <>
       {/* Flying Cart Animation */}
       <AnimatePresence>
-        {flyingItem && (
-          <FlyingCartItem
-            image={flyingItem.image}
-            startPosition={{ x: flyingItem.x - 40, y: flyingItem.y - 40 }}
-            endPosition={getCartPosition()}
-          />
-        )}
+        {flyingItem && <FlyingCartItem image={flyingItem.image} startPosition={{
+        x: flyingItem.x - 40,
+        y: flyingItem.y - 40
+      }} endPosition={getCartPosition()} />}
       </AnimatePresence>
 
       {/* Search Dialog */}
@@ -67,14 +91,16 @@ const Navbar: React.FC = () => {
               <div className="relative">
                 {/* Neon glow background for light mode */}
                 <div className="absolute inset-0 bg-primary/30 dark:bg-transparent rounded-full blur-xl scale-150 opacity-80" />
-                <motion.img 
-                  src={tboStoreLogo}
-                  alt="TBO Store"
-                  className="relative h-10 md:h-12 w-auto drop-shadow-[0_0_8px_hsl(var(--primary))]"
-                  whileHover={{ scale: 1.1, filter: 'drop-shadow(0 0 12px hsl(var(--primary)))' }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-                />
+                <motion.img src={tboStoreLogo} alt="TBO Store" className="relative h-10 md:h-12 w-auto drop-shadow-[0_0_8px_hsl(var(--primary))]" whileHover={{
+                scale: 1.1,
+                filter: 'drop-shadow(0 0 12px hsl(var(--primary)))'
+              }} whileTap={{
+                scale: 0.95
+              }} transition={{
+                type: 'spring',
+                stiffness: 400,
+                damping: 17
+              }} />
               </div>
               <span className="font-display text-xl md:text-2xl font-bold text-foreground">
                 TBO <span className="text-primary glow-text-cyan">STORE</span>
@@ -83,107 +109,92 @@ const Navbar: React.FC = () => {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-8">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.key}
-                  to={link.to}
-                  className={`relative text-sm font-medium transition-colors duration-300 ${
-                    isActive(link.to)
-                      ? 'text-primary'
-                      : 'text-muted-foreground hover:text-primary'
-                  }`}
-                >
+              {navLinks.map(link => <Link key={link.key} to={link.to} className={`relative text-sm font-medium transition-colors duration-300 ${isActive(link.to) ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>
                   {t(link.key)}
-                  {isActive(link.to) && (
-                    <motion.div
-                      layoutId="navbar-indicator"
-                      className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"
-                      transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-                    />
-                  )}
-                </Link>
-              ))}
+                  {isActive(link.to) && <motion.div layoutId="navbar-indicator" className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full" transition={{
+                type: 'spring',
+                stiffness: 350,
+                damping: 30
+              }} />}
+                </Link>)}
             </div>
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-2">
               {/* Currency Toggle */}
-              <motion.button
-                onClick={() => setCurrency(currency === 'SAR' ? 'USD' : 'SAR')}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-muted text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {currency === 'SAR' ? (
-                  <img 
-                    src={sarSymbol} 
-                    alt="SAR" 
-                    className="w-3 h-3"
-                    style={{ filter: theme === 'light' ? 'brightness(0)' : 'brightness(0) invert(1)' }}
-                  />
-                ) : (
-                  <DollarSign className="w-3 h-3" />
-                )}
+              <motion.button onClick={() => setCurrency(currency === 'SAR' ? 'USD' : 'SAR')} whileHover={{
+              scale: 1.05
+            }} whileTap={{
+              scale: 0.95
+            }} className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-muted text-muted-foreground hover:text-foreground transition-colors">
+                {currency === 'SAR' ? <img src={sarSymbol} alt="SAR" className="w-3 h-3" style={{
+                filter: theme === 'light' ? 'brightness(0)' : 'brightness(0) invert(1)'
+              }} /> : <DollarSign className="w-3 h-3" />}
                 {currency}
               </motion.button>
 
               {/* Theme Toggle */}
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div whileHover={{
+              scale: 1.05
+            }} whileTap={{
+              scale: 0.95
+            }}>
                 <Button variant="ghost" size="icon" onClick={toggleTheme} className="hidden sm:flex">
                   {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                 </Button>
               </motion.div>
 
               {/* Language Selector with Animation */}
-              <motion.div 
-                className="flex items-center gap-1 bg-muted rounded-lg p-1"
-                layout
-              >
-                <motion.button
-                  onClick={() => setLanguage('en')}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`flex items-center gap-1 px-2 py-1 rounded-md text-sm transition-all duration-300 ${
-                    language === 'en' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  <span className="text-base">🇺🇸</span>
+              <motion.div className="flex items-center gap-1 bg-muted rounded-lg p-1" layout>
+                <motion.button onClick={() => setLanguage('en')} whileHover={{
+                scale: 1.05
+              }} whileTap={{
+                scale: 0.95
+              }} className={`flex items-center gap-1 px-2 py-1 rounded-md text-sm transition-all duration-300 ${language === 'en' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+                  <span className="text-base">​</span>
                   <span className="hidden sm:inline">EN</span>
                 </motion.button>
-                <motion.button
-                  onClick={() => setLanguage('ar')}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`flex items-center gap-1 px-2 py-1 rounded-md text-sm transition-all duration-300 ${
-                    language === 'ar' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  <span className="text-base">🇸🇦</span>
+                <motion.button onClick={() => setLanguage('ar')} whileHover={{
+                scale: 1.05
+              }} whileTap={{
+                scale: 0.95
+              }} className={`flex items-center gap-1 px-2 py-1 rounded-md text-sm transition-all duration-300 ${language === 'ar' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+                  <span className="text-base">​</span>
                   <span className="hidden sm:inline">AR</span>
                 </motion.button>
               </motion.div>
 
               {/* Search Button */}
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div whileHover={{
+              scale: 1.05
+            }} whileTap={{
+              scale: 0.95
+            }}>
                 <Button variant="ghost" size="icon" onClick={() => setIsSearchOpen(true)}>
                   <Search className="w-5 h-5" />
                 </Button>
               </motion.div>
 
               {/* Admin Link */}
-              {isAdmin && (
-                <Link to="/admin">
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              {isAdmin && <Link to="/admin">
+                  <motion.div whileHover={{
+                scale: 1.05
+              }} whileTap={{
+                scale: 0.95
+              }}>
                     <Button variant="ghost" size="icon" className="text-primary">
                       <Shield className="w-5 h-5" />
                     </Button>
                   </motion.div>
-                </Link>
-              )}
+                </Link>}
 
               {/* User Profile/Auth */}
               <Link to={user ? "/profile" : "/auth"}>
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <motion.div whileHover={{
+                scale: 1.05
+              }} whileTap={{
+                scale: 0.95
+              }}>
                   <Button variant="ghost" size="icon">
                     <User className={`w-5 h-5 ${user ? 'text-primary' : ''}`} />
                   </Button>
@@ -192,59 +203,58 @@ const Navbar: React.FC = () => {
 
               {/* Cart */}
               <Link to="/cart">
-                <motion.div 
-                  ref={cartIconRef}
-                  whileHover={{ scale: 1.05 }} 
-                  whileTap={{ scale: 0.95 }}
-                >
+                <motion.div ref={cartIconRef} whileHover={{
+                scale: 1.05
+              }} whileTap={{
+                scale: 0.95
+              }}>
                   <Button variant="neon" size="icon" className="relative">
                     <ShoppingCart className="w-5 h-5" />
                     <AnimatePresence>
-                      {itemCount > 0 && (
-                        <motion.span
-                          key="cart-count"
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          exit={{ scale: 0 }}
-                          className="absolute -top-1 -right-1 w-5 h-5 bg-secondary text-secondary-foreground text-xs rounded-full flex items-center justify-center font-bold"
-                        >
+                      {itemCount > 0 && <motion.span key="cart-count" initial={{
+                      scale: 0
+                    }} animate={{
+                      scale: 1
+                    }} exit={{
+                      scale: 0
+                    }} className="absolute -top-1 -right-1 w-5 h-5 bg-secondary text-secondary-foreground text-xs rounded-full flex items-center justify-center font-bold">
                           {itemCount > 99 ? '99+' : itemCount}
-                        </motion.span>
-                      )}
+                        </motion.span>}
                     </AnimatePresence>
                   </Button>
                 </motion.div>
               </Link>
 
               {/* Mobile Menu Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-              >
+              <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                 <AnimatePresence mode="wait">
-                  {isMenuOpen ? (
-                    <motion.div
-                      key="close"
-                      initial={{ rotate: -90, opacity: 0 }}
-                      animate={{ rotate: 0, opacity: 1 }}
-                      exit={{ rotate: 90, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
+                  {isMenuOpen ? <motion.div key="close" initial={{
+                  rotate: -90,
+                  opacity: 0
+                }} animate={{
+                  rotate: 0,
+                  opacity: 1
+                }} exit={{
+                  rotate: 90,
+                  opacity: 0
+                }} transition={{
+                  duration: 0.2
+                }}>
                       <X className="w-6 h-6" />
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="menu"
-                      initial={{ rotate: 90, opacity: 0 }}
-                      animate={{ rotate: 0, opacity: 1 }}
-                      exit={{ rotate: -90, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
+                    </motion.div> : <motion.div key="menu" initial={{
+                  rotate: 90,
+                  opacity: 0
+                }} animate={{
+                  rotate: 0,
+                  opacity: 1
+                }} exit={{
+                  rotate: -90,
+                  opacity: 0
+                }} transition={{
+                  duration: 0.2
+                }}>
                       <Menu className="w-6 h-6" />
-                    </motion.div>
-                  )}
+                    </motion.div>}
                 </AnimatePresence>
               </Button>
             </div>
@@ -252,74 +262,59 @@ const Navbar: React.FC = () => {
 
           {/* Mobile Menu */}
           <AnimatePresence>
-            {isMenuOpen && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-                className="md:hidden py-4 border-t border-border overflow-hidden"
-              >
+            {isMenuOpen && <motion.div initial={{
+            opacity: 0,
+            height: 0
+          }} animate={{
+            opacity: 1,
+            height: 'auto'
+          }} exit={{
+            opacity: 0,
+            height: 0
+          }} transition={{
+            duration: 0.3
+          }} className="md:hidden py-4 border-t border-border overflow-hidden">
                 <div className="flex flex-col gap-2">
-                  {navLinks.map((link, index) => (
-                    <motion.div
-                      key={link.key}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                    >
-                      <Link
-                        to={link.to}
-                        onClick={() => setIsMenuOpen(false)}
-                        className={`block px-4 py-3 rounded-lg transition-all duration-300 ${
-                          isActive(link.to)
-                            ? 'text-primary bg-primary/10'
-                            : 'text-muted-foreground hover:text-primary hover:bg-muted'
-                        }`}
-                      >
+                  {navLinks.map((link, index) => <motion.div key={link.key} initial={{
+                opacity: 0,
+                x: -20
+              }} animate={{
+                opacity: 1,
+                x: 0
+              }} transition={{
+                delay: index * 0.05
+              }}>
+                      <Link to={link.to} onClick={() => setIsMenuOpen(false)} className={`block px-4 py-3 rounded-lg transition-all duration-300 ${isActive(link.to) ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-primary hover:bg-muted'}`}>
                         {t(link.key)}
                       </Link>
-                    </motion.div>
-                  ))}
+                    </motion.div>)}
                   
                   {/* Mobile Theme & Currency Toggle */}
-                  <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: navLinks.length * 0.05 }}
-                    className="flex items-center gap-4 px-4 py-3"
-                  >
+                  <motion.div initial={{
+                opacity: 0,
+                x: -20
+              }} animate={{
+                opacity: 1,
+                x: 0
+              }} transition={{
+                delay: navLinks.length * 0.05
+              }} className="flex items-center gap-4 px-4 py-3">
                     <Button variant="ghost" size="sm" onClick={toggleTheme} className="flex items-center gap-2">
                       {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                       {theme === 'dark' ? 'Light' : 'Dark'}
                     </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => setCurrency(currency === 'SAR' ? 'USD' : 'SAR')}
-                      className="flex items-center gap-2"
-                    >
-                      {currency === 'SAR' ? (
-                        <img 
-                          src={sarSymbol} 
-                          alt="SAR" 
-                          className="w-4 h-4"
-                          style={{ filter: theme === 'light' ? 'brightness(0)' : 'brightness(0) invert(1)' }}
-                        />
-                      ) : (
-                        <DollarSign className="w-4 h-4" />
-                      )}
+                    <Button variant="ghost" size="sm" onClick={() => setCurrency(currency === 'SAR' ? 'USD' : 'SAR')} className="flex items-center gap-2">
+                      {currency === 'SAR' ? <img src={sarSymbol} alt="SAR" className="w-4 h-4" style={{
+                    filter: theme === 'light' ? 'brightness(0)' : 'brightness(0) invert(1)'
+                  }} /> : <DollarSign className="w-4 h-4" />}
                       {currency}
                     </Button>
                   </motion.div>
                 </div>
-              </motion.div>
-            )}
+              </motion.div>}
           </AnimatePresence>
         </div>
       </nav>
-    </>
-  );
+    </>;
 };
-
 export default Navbar;
