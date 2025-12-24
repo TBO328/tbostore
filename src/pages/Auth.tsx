@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
+import tboStoreLogo from '@/assets/tbo-store-logo.png';
 
 const Auth: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -135,9 +136,9 @@ const Auth: React.FC = () => {
           {/* Logo */}
           <Link to="/" className="flex justify-center mb-8">
             <img
-              src="/lovable-uploads/c45b2bd9-6a9e-498e-add6-f6eb5c767a9c.png"
+              src={tboStoreLogo}
               alt="TBO Store"
-              className="h-12 w-auto"
+              className="h-16 w-auto"
             />
           </Link>
 
