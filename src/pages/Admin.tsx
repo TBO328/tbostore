@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Package, Ticket, Plus, Pencil, Trash2, Loader2, LogOut, ShoppingBag, Settings, Eye, ChevronDown, Home, TrendingUp, Users, DollarSign } from 'lucide-react';
+import { Package, Ticket, Plus, Pencil, Trash2, Loader2, LogOut, ShoppingBag, Settings, ChevronDown, Home, TrendingUp, Users, DollarSign, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -476,8 +476,8 @@ const Admin: React.FC = () => {
           </div>
           <div className="flex items-center gap-4">
             <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full">
-              <div className="w-2 h-2 rounded-full animate-pulse bg-[#53e45f]" />
-              <span className="text-sm font-medium text-primary-foreground">{user?.email}</span>
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <span className="text-sm font-medium text-primary">{user?.email}</span>
             </div>
             <Button variant="outline" size="sm" onClick={signOut} className="gap-2">
               <LogOut className="w-4 h-4" />
@@ -639,7 +639,7 @@ const Admin: React.FC = () => {
                         </SelectContent>
                       </Select>
                       <Button variant="ghost" size="icon" onClick={() => viewOrderDetails(order)}>
-                        <Eye className="w-4 h-4" />
+                        <Tag className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
