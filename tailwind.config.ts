@@ -15,11 +15,11 @@ export default {
   	extend: {
 		fontFamily: {
 			display: [
-				'Inter',
+				'Cairo',
 				'sans-serif'
 			],
 			body: [
-				'Inter',
+				'Cairo',
 				'sans-serif'
 			],
 			arabic: [
