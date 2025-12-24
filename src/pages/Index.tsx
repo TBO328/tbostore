@@ -96,7 +96,7 @@ const Index: React.FC = () => {
             <img 
               src={tboStoreLogo} 
               alt="TBO Store Logo" 
-              className="w-48 md:w-64 lg:w-80 h-auto"
+              className="w-72 md:w-96 lg:w-[500px] xl:w-[600px] h-auto"
             />
           </motion.div>
 
