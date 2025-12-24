@@ -167,8 +167,8 @@ const Navbar: React.FC = () => {
                 </Link>
               )}
 
-              {/* User Auth */}
-              <Link to={user ? "/admin" : "/auth"}>
+              {/* User Profile/Auth */}
+              <Link to={user ? "/profile" : "/auth"}>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Button variant="ghost" size="icon">
                     <User className={`w-5 h-5 ${user ? 'text-primary' : ''}`} />
