@@ -127,9 +127,8 @@ const Index: React.FC = () => {
 
               <AnimatedSection delay={0.1}>
                 <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
-                  <span className="text-foreground">{t('heroTitle').split(' ').slice(0, -2).join(' ')}</span>
-                  <br />
-                  <span className="text-gradient-neon glow-text-cyan">{t('heroTitle').split(' ').slice(-2).join(' ')}</span>
+                  <span className="text-foreground block">{t('heroTitle').split(' ').slice(0, -2).join(' ')}</span>
+                  <span className="text-gradient-neon glow-text-cyan block mt-2">{t('heroTitle').split(' ').slice(-2).join(' ')}</span>
                 </h1>
               </AnimatedSection>
 
