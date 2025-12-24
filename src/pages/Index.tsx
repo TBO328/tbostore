@@ -9,6 +9,7 @@ import Footer from '@/components/Footer';
 import AnimatedSection from '@/components/AnimatedSection';
 import ProductCard from '@/components/ProductCard';
 import { products } from '@/data/products';
+import tboStoreLogo from '@/assets/tbo-store-logo.png';
 
 const featuredProducts = products.slice(0, 4);
 
@@ -85,6 +86,20 @@ const Index: React.FC = () => {
       <main>
         {/* Hero Section */}
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-hero">
+          {/* Logo on the left with transparency */}
+          <motion.div
+            initial={{ opacity: 0, x: -100 }}
+            animate={{ opacity: 0.15, x: 0 }}
+            transition={{ duration: 1, delay: 0.5 }}
+            className="absolute left-4 md:left-16 top-1/2 -translate-y-1/2 z-0 hidden md:block"
+          >
+            <img 
+              src={tboStoreLogo} 
+              alt="TBO Store Logo" 
+              className="w-48 md:w-64 lg:w-80 h-auto"
+            />
+          </motion.div>
+
           {/* Animated Background Elements */}
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute inset-0 opacity-20">
