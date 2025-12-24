@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ShoppingCart, Search, Moon, Sun, DollarSign, User, Shield } from 'lucide-react';
+import { Menu, X, ShoppingCart, Search, Moon, Sun, DollarSign, User, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCart } from '@/contexts/CartContext';
@@ -145,24 +145,21 @@ const Navbar: React.FC = () => {
               </motion.div>
 
               {/* Language Selector with Animation */}
-              <motion.div 
-                className="flex items-center bg-card border border-border rounded-full p-1 shadow-lg"
-                whileHover={{ scale: 1.02 }}
-              >
-                <motion.button 
-                  onClick={() => setLanguage('en')} 
-                  whileHover={{ scale: 1.05 }} 
-                  whileTap={{ scale: 0.95 }} 
-                  className={`flex items-center justify-center px-3 py-1.5 rounded-full text-sm font-bold transition-all duration-300 ${language === 'en' ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}
-                >
+              <motion.div className="flex items-center bg-card border border-border rounded-full p-1 shadow-lg" whileHover={{
+              scale: 1.02
+            }}>
+                <motion.button onClick={() => setLanguage('en')} whileHover={{
+                scale: 1.05
+              }} whileTap={{
+                scale: 0.95
+              }} className={`flex items-center justify-center px-3 py-1.5 rounded-full text-sm font-bold transition-all duration-300 ${language === 'en' ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}>
                   EN
                 </motion.button>
-                <motion.button 
-                  onClick={() => setLanguage('ar')} 
-                  whileHover={{ scale: 1.05 }} 
-                  whileTap={{ scale: 0.95 }} 
-                  className={`flex items-center justify-center px-3 py-1.5 rounded-full text-sm font-bold transition-all duration-300 ${language === 'ar' ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}
-                >
+                <motion.button onClick={() => setLanguage('ar')} whileHover={{
+                scale: 1.05
+              }} whileTap={{
+                scale: 0.95
+              }} className={`flex items-center justify-center px-3 py-1.5 rounded-full text-sm font-bold transition-all duration-300 ${language === 'ar' ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}>
                   عربي
                 </motion.button>
               </motion.div>
@@ -186,7 +183,7 @@ const Navbar: React.FC = () => {
                 scale: 0.95
               }}>
                     <Button variant="ghost" size="icon" className="text-primary">
-                      <Shield className="w-5 h-5" />
+                      <AlertTriangle className="w-5 h-5" />
                     </Button>
                   </motion.div>
                 </Link>}
