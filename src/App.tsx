@@ -17,6 +17,7 @@ import Contact from "./pages/Contact";
 import Cart from "./pages/Cart";
 import Policies from "./pages/Policies";
 import Auth from "./pages/Auth";
+import ForgotPassword from "./pages/ForgotPassword";
 import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -39,6 +40,7 @@ const AnimatedRoutes = () => {
         <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
         <Route path="/policies" element={<PageTransition><Policies /></PageTransition>} />
         <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
+        <Route path="/forgot-password" element={<PageTransition><ForgotPassword /></PageTransition>} />
         <Route path="/admin" element={<PageTransition><Admin /></PageTransition>} />
         <Route path="/profile" element={<PageTransition><Profile /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
