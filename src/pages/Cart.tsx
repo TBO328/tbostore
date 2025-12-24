@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Trash2, Plus, Minus, ArrowLeft, MessageCircle, Building2, Copy, Check, Loader2 } from 'lucide-react';
+import { ShoppingCart, Trash2, Plus, Minus, ArrowLeft, MessageCircle, Building2, Copy, Check, Loader2, Tag, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -41,6 +41,12 @@ const Cart: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState<string | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  
+  // Coupon state
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPaymentSettings();
@@ -68,6 +74,56 @@ const Cart: React.FC = () => {
     navigator.clipboard.writeText(text);
     setCopiedField(field);
     setTimeout(() => setCopiedField(null), 2000);
+  };
+
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    
+    setCouponLoading(true);
+    setCouponError(null);
+    
+    try {
+      const { data, error } = await supabase.rpc('validate_coupon', {
+        coupon_code: couponCode.trim().toUpperCase()
+      });
+      
+      if (error) throw error;
+      
+      if (data && data.length > 0 && data[0].is_valid) {
+        setAppliedCoupon({
+          code: couponCode.trim().toUpperCase(),
+          discount: data[0].discount_percent
+        });
+        setCouponCode('');
+        toast({
+          title: language === 'en' ? 'Coupon Applied!' : 'تم تطبيق الكوبون!',
+          description: language === 'en' 
+            ? `${data[0].discount_percent}% discount applied` 
+            : `تم تطبيق خصم ${data[0].discount_percent}%`,
+        });
+      } else {
+        setCouponError(language === 'en' ? 'Invalid or expired coupon' : 'كوبون غير صالح أو منتهي');
+      }
+    } catch (error) {
+      setCouponError(language === 'en' ? 'Error validating coupon' : 'خطأ في التحقق من الكوبون');
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode('');
+    setCouponError(null);
+  };
+
+  const getDiscountAmount = () => {
+    if (!appliedCoupon) return 0;
+    return (getTotalPrice() * appliedCoupon.discount) / 100;
+  };
+
+  const getFinalTotal = () => {
+    return getTotalPrice() - getDiscountAmount();
   };
 
   const handleSubmitOrder = async () => {
@@ -104,8 +160,9 @@ const Cart: React.FC = () => {
         customer_address: customerAddress.trim(),
         items: orderItems,
         payment_method: paymentMethod,
-        total_amount: getTotalPrice(),
+        total_amount: getFinalTotal(),
         status: 'pending',
+        notes: appliedCoupon ? `Coupon: ${appliedCoupon.code} (-${appliedCoupon.discount}%)` : null,
       });
 
       if (error) throw error;
@@ -466,16 +523,89 @@ const Cart: React.FC = () => {
                       ))}
                     </div>
 
+                    {/* Coupon Section */}
+                    <div className="mb-4">
+                      {appliedCoupon ? (
+                        <div className="flex items-center justify-between p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <Tag className="w-4 h-4 text-green-500" />
+                            <span className="text-sm font-medium text-green-500">
+                              {appliedCoupon.code} (-{appliedCoupon.discount}%)
+                            </span>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={removeCoupon}
+                            className="w-6 h-6 text-green-500 hover:text-red-500"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <div className="flex gap-2">
+                            <Input
+                              value={couponCode}
+                              onChange={(e) => {
+                                setCouponCode(e.target.value.toUpperCase());
+                                setCouponError(null);
+                              }}
+                              placeholder={language === 'en' ? 'Enter coupon code' : 'أدخل كود الكوبون'}
+                              className="flex-1"
+                            />
+                            <Button
+                              variant="outline"
+                              onClick={applyCoupon}
+                              disabled={couponLoading || !couponCode.trim()}
+                              className="shrink-0"
+                            >
+                              {couponLoading ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Tag className="w-4 h-4" />
+                              )}
+                            </Button>
+                          </div>
+                          {couponError && (
+                            <p className="text-xs text-destructive">{couponError}</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
                     {/* Divider */}
                     <div className="border-t border-border my-4" />
 
+                    {/* Subtotal */}
+                    <div className="flex justify-between items-center text-sm mb-2">
+                      <span className="text-muted-foreground">
+                        {language === 'ar' ? 'المجموع الفرعي' : 'Subtotal'}
+                      </span>
+                      <span className="text-foreground">
+                        {formatPrice(getTotalPrice())}
+                      </span>
+                    </div>
+
+                    {/* Discount */}
+                    {appliedCoupon && (
+                      <div className="flex justify-between items-center text-sm mb-2">
+                        <span className="text-green-500">
+                          {language === 'ar' ? 'الخصم' : 'Discount'} ({appliedCoupon.discount}%)
+                        </span>
+                        <span className="text-green-500">
+                          -{formatPrice(getDiscountAmount())}
+                        </span>
+                      </div>
+                    )}
+
                     {/* Total */}
-                    <div className="flex justify-between items-center mb-6">
+                    <div className="flex justify-between items-center mb-6 pt-2 border-t border-border">
                       <span className="text-lg font-semibold text-foreground">
                         {language === 'ar' ? 'إجمالي السعر' : 'Total Price'}
                       </span>
                       <span className="font-display text-2xl font-bold text-primary glow-text-cyan">
-                        {formatPrice(getTotalPrice())}
+                        {formatPrice(getFinalTotal())}
                       </span>
                     </div>
 
