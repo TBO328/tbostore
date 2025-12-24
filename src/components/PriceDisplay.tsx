@@ -39,7 +39,7 @@ const PriceDisplay: React.FC<PriceDisplayProps> = ({
   if (currency === 'USD') {
     return (
       <div className={`flex items-center gap-2 ${className}`}>
-        <span className={`font-display font-bold text-primary ${sizeClasses[size].text}`}>
+        <span className={`font-arabic font-bold text-primary ${sizeClasses[size].text}`}>
           ${displayPrice.toFixed(2)}
         </span>
         {showOriginal && displayOriginalPrice && (
@@ -53,7 +53,7 @@ const PriceDisplay: React.FC<PriceDisplayProps> = ({
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <span className={`font-display font-bold text-primary flex items-center gap-1 ${sizeClasses[size].text}`}>
+      <span className={`font-arabic font-bold text-primary flex items-center gap-1 ${sizeClasses[size].text}`}>
         {displayPrice.toFixed(2)}
         <img 
           src={sarSymbol} 
