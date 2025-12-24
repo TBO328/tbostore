@@ -63,14 +63,18 @@ const Navbar: React.FC = () => {
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3">
-              <motion.img 
-                src={tboStoreLogo}
-                alt="TBO Store"
-                className="h-10 md:h-12 w-auto"
-                whileHover={{ scale: 1.1, filter: 'drop-shadow(0 0 12px hsl(var(--primary)))' }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-              />
+              <div className="relative">
+                {/* Neon glow background for light mode */}
+                <div className="absolute inset-0 bg-primary/30 dark:bg-transparent rounded-full blur-xl scale-150 opacity-80" />
+                <motion.img 
+                  src={tboStoreLogo}
+                  alt="TBO Store"
+                  className="relative h-10 md:h-12 w-auto drop-shadow-[0_0_8px_hsl(var(--primary))]"
+                  whileHover={{ scale: 1.1, filter: 'drop-shadow(0 0 12px hsl(var(--primary)))' }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                />
+              </div>
               <span className="font-display text-xl md:text-2xl font-bold text-foreground">
                 TBO <span className="text-primary glow-text-cyan">STORE</span>
               </span>
