@@ -20,6 +20,7 @@ import Auth from "./pages/Auth";
 import ForgotPassword from "./pages/ForgotPassword";
 import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
+import CheckoutSuccess from "./pages/CheckoutSuccess";
 import NotFound from "./pages/NotFound";
 import PageTransition from "./components/PageTransition";
 
@@ -43,6 +44,7 @@ const AnimatedRoutes = () => {
         <Route path="/forgot-password" element={<PageTransition><ForgotPassword /></PageTransition>} />
         <Route path="/admin" element={<PageTransition><Admin /></PageTransition>} />
         <Route path="/profile" element={<PageTransition><Profile /></PageTransition>} />
+        <Route path="/checkout/success" element={<PageTransition><CheckoutSuccess /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>

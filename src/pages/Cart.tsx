@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Trash2, Plus, Minus, ArrowLeft, MessageCircle, Building2, Copy, Check, Loader2, Tag, X } from 'lucide-react';
+import { ShoppingCart, Trash2, Plus, Minus, ArrowLeft, MessageCircle, Building2, Copy, Check, Loader2, Tag, X, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -36,7 +36,7 @@ const Cart: React.FC = () => {
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<'stc_pay' | 'bank_transfer'>('stc_pay');
+  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'stc_pay' | 'bank_transfer'>('stripe');
   const [paymentSettings, setPaymentSettings] = useState<PaymentSettings | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState<string | null>(null);
@@ -126,7 +126,63 @@ const Cart: React.FC = () => {
     return getTotalPrice() - getDiscountAmount();
   };
 
+  const handleStripeCheckout = async () => {
+    if (!customerName.trim() || !customerPhone.trim() || !customerAddress.trim()) {
+      toast({
+        title: t('pleaseEnterInfo'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: {
+          items: items.map(item => ({
+            name: language === 'en' ? item.name : item.nameAr,
+            nameAr: item.nameAr,
+            price: item.price,
+            quantity: item.quantity,
+            image: item.image,
+          })),
+          customerName: customerName.trim(),
+          customerPhone: customerPhone.trim(),
+          customerAddress: customerAddress.trim(),
+          couponCode: appliedCoupon?.code || null,
+          couponDiscount: appliedCoupon?.discount || 0,
+          successUrl: `${window.location.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancelUrl: `${window.location.origin}/cart`,
+        },
+      });
+
+      if (error) throw error;
+      
+      if (data?.url) {
+        clearCart();
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL returned');
+      }
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Stripe checkout error:', errorMessage);
+      toast({
+        title: language === 'ar' ? 'خطأ في الدفع' : 'Payment Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleSubmitOrder = async () => {
+    if (paymentMethod === 'stripe') {
+      return handleStripeCheckout();
+    }
+
     if (!customerName.trim() || !customerPhone.trim() || !customerAddress.trim()) {
       toast({
         title: t('pleaseEnterInfo'),
@@ -424,8 +480,32 @@ const Cart: React.FC = () => {
                     <h2 className="font-display text-xl font-bold text-foreground mb-6">
                       {t('paymentMethod')}
                     </h2>
-                    <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as 'stc_pay' | 'bank_transfer')}>
+                    <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as 'stripe' | 'stc_pay' | 'bank_transfer')}>
                       <div className="space-y-4">
+                        {/* Stripe Card Payment Option */}
+                        <div className={`p-4 rounded-xl border-2 transition-colors ${paymentMethod === 'stripe' ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                          <div className="flex items-center gap-3">
+                            <RadioGroupItem value="stripe" id="stripe" />
+                            <Label htmlFor="stripe" className="flex items-center gap-2 cursor-pointer flex-1">
+                              <CreditCard className="w-5 h-5 text-primary" />
+                              <span className="font-semibold">{language === 'ar' ? 'بطاقة ائتمان / مدى' : 'Credit Card / Mada'}</span>
+                            </Label>
+                          </div>
+                          {paymentMethod === 'stripe' && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              className="mt-4 p-4 bg-muted rounded-lg"
+                            >
+                              <p className="text-sm text-muted-foreground">
+                                {language === 'ar' 
+                                  ? 'سيتم توجيهك إلى صفحة الدفع الآمنة'
+                                  : 'You will be redirected to a secure payment page'}
+                              </p>
+                            </motion.div>
+                          )}
+                        </div>
+
                         {/* STC Pay Option */}
                         <div className={`p-4 rounded-xl border-2 transition-colors ${paymentMethod === 'stc_pay' ? 'border-primary bg-primary/5' : 'border-border'}`}>
                           <div className="flex items-center gap-3">
