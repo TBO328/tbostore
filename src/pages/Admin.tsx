@@ -669,26 +669,30 @@ const Admin: React.FC = () => {
             }} animate={{
               opacity: 1,
               y: 0
-            }} className="bg-card rounded-xl border border-border p-4">
+            }} className="bg-card rounded-xl border border-border p-5 hover:border-primary/50 transition-colors">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <span className="font-mono font-bold text-foreground">{order.order_number}</span>
-                        <span className={`px-2 py-1 rounded text-xs ${getStatusColor(order.status)}`}>
+                        <span className="font-mono font-bold text-foreground text-lg">{order.order_number}</span>
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
                           {getStatusText(order.status)}
                         </span>
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        {order.customer_name} • {order.customer_phone}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {order.items.length} {language === 'en' ? 'items' : 'منتجات'} • {formatPrice(order.total_amount)}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {new Date(order.created_at).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US')}
-                      </p>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <p className="text-muted-foreground">
+                          <span className="text-foreground font-medium">{order.customer_name}</span>
+                        </p>
+                        <p className="text-muted-foreground">{order.customer_phone}</p>
+                      </div>
+                      <div className="flex items-center gap-4 mt-2">
+                        <span className="text-primary font-bold">{formatPrice(order.total_amount)}</span>
+                        <span className="text-sm text-muted-foreground">• {order.items.length} {language === 'en' ? 'items' : 'منتجات'}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(order.created_at).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       <Select value={order.status} onValueChange={value => updateOrderStatus(order.id, value)}>
                         <SelectTrigger className="w-[140px]">
                           <SelectValue />
@@ -701,15 +705,20 @@ const Admin: React.FC = () => {
                           <SelectItem value="cancelled">{getStatusText('cancelled')}</SelectItem>
                         </SelectContent>
                       </Select>
-                      <Button variant="ghost" size="icon" onClick={() => viewOrderDetails(order)}>
+                      <Button variant="outline" size="sm" onClick={() => viewOrderDetails(order)} className="gap-2">
                         <Tag className="w-4 h-4" />
+                        {language === 'ar' ? 'التفاصيل' : 'Details'}
                       </Button>
                     </div>
                   </div>
                 </motion.div>)}
-              {orders.length === 0 && <p className="text-center text-muted-foreground py-8">
-                  {t('noOrders')}
-                </p>}
+              {orders.length === 0 && (
+                <div className="text-center py-12 bg-card rounded-xl border border-border">
+                  <ShoppingBag className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+                  <p className="text-muted-foreground">{t('noOrders')}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{language === 'en' ? 'Orders will appear here when customers place them' : 'ستظهر الطلبات هنا عندما يقوم العملاء بالطلب'}</p>
+                </div>
+              )}
             </div>
           </TabsContent>
 
@@ -851,28 +860,54 @@ const Admin: React.FC = () => {
             }} animate={{
               opacity: 1,
               y: 0
-            }} className="bg-card rounded-xl border border-border p-4 flex items-center gap-4">
-                  {product.image_url && <img src={product.image_url} alt={product.name_en} className="w-16 h-16 rounded-lg object-cover" />}
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-foreground">{product.name_en}</h3>
-                    <p className="text-sm text-muted-foreground">{product.category}</p>
-                    <p className="text-primary font-medium">${product.price}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`px-2 py-1 rounded text-xs ${product.in_stock ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                      {product.in_stock ? 'In Stock' : 'Out of Stock'}
-                    </span>
-                    <Button variant="ghost" size="icon" onClick={() => editProduct(product)}>
-                      <Pencil className="w-4 h-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => deleteProduct(product.id)}>
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
+            }} className="bg-card rounded-xl border border-border p-5 hover:border-primary/50 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-muted flex-shrink-0">
+                      {product.image_url ? (
+                        <img src={product.image_url} alt={product.name_en} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Package className="w-8 h-8 text-muted-foreground" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-foreground truncate">{language === 'ar' ? product.name_ar : product.name_en}</h3>
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${product.in_stock ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                          {product.in_stock ? (language === 'ar' ? 'متوفر' : 'In Stock') : (language === 'ar' ? 'نفذ' : 'Out')}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">{language === 'ar' ? (
+                        product.category === 'Subscriptions' ? 'اشتراكات' :
+                        product.category === 'Designs' ? 'تصاميم' :
+                        product.category === 'Engagement' ? 'تفاعل' :
+                        product.category === 'Discord' ? 'ديسكورد' : product.category
+                      ) : product.category}</p>
+                      <div className="flex items-center gap-3">
+                        <span className="text-primary font-bold">{formatPrice(Number(product.price))}</span>
+                        {product.original_price && (
+                          <span className="text-muted-foreground text-sm line-through">{formatPrice(Number(product.original_price))}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button variant="ghost" size="icon" onClick={() => editProduct(product)} className="hover:bg-primary/10 hover:text-primary">
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => deleteProduct(product.id)} className="hover:bg-destructive/10 hover:text-destructive">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 </motion.div>)}
-              {products.length === 0 && <p className="text-center text-muted-foreground py-8">
-                  {language === 'en' ? 'No products yet' : 'لا توجد منتجات بعد'}
-                </p>}
+              {products.length === 0 && (
+                <div className="text-center py-12 bg-card rounded-xl border border-border">
+                  <Package className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+                  <p className="text-muted-foreground">{language === 'en' ? 'No products yet' : 'لا توجد منتجات بعد'}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{language === 'en' ? 'Add your first product to get started' : 'أضف أول منتج للبدء'}</p>
+                </div>
+              )}
             </div>
           </TabsContent>
 
@@ -942,32 +977,42 @@ const Admin: React.FC = () => {
             }} animate={{
               opacity: 1,
               y: 0
-            }} className="bg-card rounded-xl border border-border p-4 flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center">
-                    <Ticket className="w-6 h-6 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-foreground font-mono">{coupon.code}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {coupon.discount_percent}% off
-                      {coupon.expires_at && ` • Expires: ${new Date(coupon.expires_at).toLocaleDateString()}`}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`px-2 py-1 rounded text-xs ${coupon.is_active ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                      {coupon.is_active ? 'Active' : 'Inactive'}
-                    </span>
-                    <Button variant="ghost" size="icon" onClick={() => editCoupon(coupon)}>
-                      <Pencil className="w-4 h-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => deleteCoupon(coupon.id)}>
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
+            }} className="bg-card rounded-xl border border-border p-5 hover:border-primary/50 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center flex-shrink-0">
+                      <Ticket className="w-7 h-7 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-bold text-foreground font-mono text-lg">{coupon.code}</h3>
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${coupon.is_active ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                          {coupon.is_active ? (language === 'ar' ? 'نشط' : 'Active') : (language === 'ar' ? 'معطل' : 'Inactive')}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                        <span className="text-secondary font-semibold">{coupon.discount_percent}% {language === 'ar' ? 'خصم' : 'off'}</span>
+                        {coupon.expires_at && (
+                          <span>• {language === 'ar' ? 'ينتهي:' : 'Expires:'} {new Date(coupon.expires_at).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button variant="ghost" size="icon" onClick={() => editCoupon(coupon)} className="hover:bg-primary/10 hover:text-primary">
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => deleteCoupon(coupon.id)} className="hover:bg-destructive/10 hover:text-destructive">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 </motion.div>)}
-              {coupons.length === 0 && <p className="text-center text-muted-foreground py-8">
-                  {language === 'en' ? 'No coupons yet' : 'لا توجد كوبونات بعد'}
-                </p>}
+              {coupons.length === 0 && (
+                <div className="text-center py-12 bg-card rounded-xl border border-border">
+                  <Ticket className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+                  <p className="text-muted-foreground">{language === 'en' ? 'No coupons yet' : 'لا توجد كوبونات بعد'}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{language === 'en' ? 'Create a coupon to offer discounts' : 'أنشئ كوبون لتقديم خصومات'}</p>
+                </div>
+              )}
             </div>
           </TabsContent>
 
