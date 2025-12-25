@@ -1,7 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingCart, Heart, ArrowLeft, Plus, Minus, Check } from 'lucide-react';
+import { ShoppingCart, Heart, ArrowLeft, Plus, Minus, Check, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCart } from '@/contexts/CartContext';
@@ -11,7 +11,8 @@ import AnimatedSection from '@/components/AnimatedSection';
 import ProductCard from '@/components/ProductCard';
 import PriceDisplay from '@/components/PriceDisplay';
 import { toast } from 'sonner';
-import { products } from '@/data/products';
+import { supabase } from '@/integrations/supabase/client';
+import { products as localProducts, Product } from '@/data/products';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,9 +22,95 @@ const ProductDetail: React.FC = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
   const imageRef = useRef<HTMLImageElement>(null);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const product = products.find(p => p.id === Number(id));
-  const relatedProducts = products.filter(p => p.id !== Number(id) && p.category === product?.category).slice(0, 4);
+  useEffect(() => {
+    const fetchProduct = async () => {
+      setLoading(true);
+      
+      // First try to find in local products (for numeric IDs)
+      const localProduct = localProducts.find(p => p.id === Number(id));
+      if (localProduct) {
+        setProduct(localProduct);
+        setRelatedProducts(localProducts.filter(p => p.id !== Number(id) && p.category === localProduct.category).slice(0, 4));
+        setLoading(false);
+        return;
+      }
+
+      // If not found locally, fetch from Supabase (for UUID IDs)
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+
+      if (error || !data) {
+        setProduct(null);
+        setLoading(false);
+        return;
+      }
+
+      const dbProduct: Product = {
+        id: data.id,
+        name: data.name_en,
+        nameAr: data.name_ar,
+        price: Number(data.price),
+        originalPrice: data.original_price ? Number(data.original_price) : undefined,
+        image: data.image_url || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400',
+        category: data.category,
+        categoryAr: data.category,
+        description: data.description_en || '',
+        descriptionAr: data.description_ar || '',
+        rating: Number(data.rating) || 5,
+        reviewsCount: data.reviews_count || 0,
+        inStock: data.in_stock !== false,
+      };
+
+      setProduct(dbProduct);
+
+      // Fetch related products from database
+      const { data: relatedData } = await supabase
+        .from('products')
+        .select('*')
+        .eq('category', data.category)
+        .neq('id', id)
+        .limit(4);
+
+      if (relatedData) {
+        const related = relatedData.map(item => ({
+          id: item.id,
+          name: item.name_en,
+          nameAr: item.name_ar,
+          price: Number(item.price),
+          originalPrice: item.original_price ? Number(item.original_price) : undefined,
+          image: item.image_url || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400',
+          category: item.category,
+          categoryAr: item.category,
+          description: item.description_en || '',
+          descriptionAr: item.description_ar || '',
+          rating: Number(item.rating) || 5,
+          reviewsCount: item.reviews_count || 0,
+          inStock: item.in_stock !== false,
+        }));
+        setRelatedProducts(related);
+      }
+
+      setLoading(false);
+    };
+
+    fetchProduct();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Navbar />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (!product) {
     return (

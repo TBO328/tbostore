@@ -11,6 +11,9 @@ export interface Product {
   isBestSeller?: boolean;
   description: string;
   descriptionAr: string;
+  rating?: number;
+  reviewsCount?: number;
+  inStock?: boolean;
 }
 
 export const products: Product[] = [
