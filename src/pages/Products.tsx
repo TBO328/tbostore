@@ -1,15 +1,99 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import ProductCard from '@/components/ProductCard';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import AnimatedSection from '@/components/AnimatedSection';
-import { products, categories } from '@/data/products';
+import { supabase } from '@/integrations/supabase/client';
+import { products as localProducts, categories } from '@/data/products';
+import { Loader2 } from 'lucide-react';
+import type { Tables } from '@/integrations/supabase/types';
+
+type DBProduct = Tables<'products'>;
+
+interface DisplayProduct {
+  id: number | string;
+  name: string;
+  nameAr: string;
+  price: number;
+  originalPrice?: number;
+  image: string;
+  category: string;
+  categoryAr: string;
+  isNew?: boolean;
+  isBestSeller?: boolean;
+  description: string;
+  descriptionAr: string;
+}
 
 const Products: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('All');
   const { language } = useLanguage();
+  const [products, setProducts] = useState<DisplayProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const { data: dbProducts, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching products:', error);
+        // Fallback to local products
+        setProducts(localProducts);
+      } else if (dbProducts && dbProducts.length > 0) {
+        // Map database products to display format
+        const mappedProducts: DisplayProduct[] = dbProducts.map((p: DBProduct) => ({
+          id: p.id,
+          name: p.name_en,
+          nameAr: p.name_ar,
+          price: Number(p.price),
+          originalPrice: p.original_price ? Number(p.original_price) : undefined,
+          image: p.image_url || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=500&q=80',
+          category: p.category,
+          categoryAr: getCategoryAr(p.category),
+          isNew: isNewProduct(p.created_at),
+          isBestSeller: false,
+          description: p.description_en || '',
+          descriptionAr: p.description_ar || '',
+        }));
+        setProducts(mappedProducts);
+      } else {
+        // No products in database, use local
+        setProducts(localProducts);
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      setProducts(localProducts);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getCategoryAr = (category: string): string => {
+    const categoryMap: { [key: string]: string } = {
+      'Subscriptions': 'اشتراكات',
+      'Designs': 'تصاميم',
+      'Engagement': 'تفاعل',
+      'Discord': 'ديسكورد',
+    };
+    return categoryMap[category] || category;
+  };
+
+  const isNewProduct = (createdAt: string): boolean => {
+    const created = new Date(createdAt);
+    const now = new Date();
+    const diffDays = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
+    return diffDays < 7; // Consider new if created within last 7 days
+  };
 
   const filteredProducts = activeCategory === 'All'
     ? products
@@ -83,24 +167,40 @@ const Products: React.FC = () => {
               </div>
             </AnimatedSection>
 
-            {/* Products Grid */}
-            <motion.div 
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-              layout
-            >
-              {filteredProducts.map((product, index) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 20 }}
-                  transition={{ delay: index * 0.05, duration: 0.4 }}
-                  layout
-                >
-                  <ProductCard product={product} />
-                </motion.div>
-              ))}
-            </motion.div>
+            {/* Loading State */}
+            {loading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              /* Products Grid */
+              <motion.div 
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                layout
+              >
+                {filteredProducts.map((product, index) => (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    transition={{ delay: index * 0.05, duration: 0.4 }}
+                    layout
+                  >
+                    <ProductCard product={product} />
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+
+            {/* Empty State */}
+            {!loading && filteredProducts.length === 0 && (
+              <div className="text-center py-20">
+                <p className="text-muted-foreground text-lg">
+                  {language === 'en' ? 'No products found in this category.' : 'لا توجد منتجات في هذه الفئة.'}
+                </p>
+              </div>
+            )}
           </div>
         </section>
       </main>

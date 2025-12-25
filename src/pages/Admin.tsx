@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Package, Ticket, Plus, Pencil, Trash2, Loader2, LogOut, ShoppingBag, Settings, ChevronDown, Home, TrendingUp, Users, DollarSign, Tag } from 'lucide-react';
+import { Package, Ticket, Plus, Pencil, Trash2, Loader2, LogOut, ShoppingBag, Settings, ChevronDown, Home, TrendingUp, Users, DollarSign, Tag, Upload, Image } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -90,6 +90,17 @@ const Admin: React.FC = () => {
     image_url: '',
     in_stock: true
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  // Available categories
+  const availableCategories = [
+    { value: 'Subscriptions', labelEn: 'Subscriptions', labelAr: 'اشتراكات' },
+    { value: 'Designs', labelEn: 'Designs', labelAr: 'تصاميم' },
+    { value: 'Engagement', labelEn: 'Engagement', labelAr: 'تفاعل' },
+    { value: 'Discord', labelEn: 'Discord', labelAr: 'ديسكورد' },
+  ];
 
   // Coupon form state
   const [couponDialogOpen, setCouponDialogOpen] = useState(false);
@@ -176,33 +187,79 @@ const Admin: React.FC = () => {
     }
   };
 
+  // Upload image to storage
+  const uploadProductImage = async (file: File): Promise<string | null> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+    const filePath = `product-images/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('products')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      console.error('Upload error:', uploadError);
+      return null;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('products')
+      .getPublicUrl(filePath);
+
+    return publicUrl;
+  };
+
+  // Handle image file selection
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   // Product handlers
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const productData = {
-      name_en: productForm.name_en,
-      name_ar: productForm.name_ar,
-      description_en: productForm.description_en || null,
-      description_ar: productForm.description_ar || null,
-      price: parseFloat(productForm.price),
-      original_price: productForm.original_price ? parseFloat(productForm.original_price) : null,
-      category: productForm.category,
-      image_url: productForm.image_url || null,
-      in_stock: productForm.in_stock
-    };
+    setUploadingImage(true);
+
     try {
+      let imageUrl = productForm.image_url;
+
+      // Upload new image if selected
+      if (imageFile) {
+        const uploadedUrl = await uploadProductImage(imageFile);
+        if (uploadedUrl) {
+          imageUrl = uploadedUrl;
+        } else {
+          throw new Error('Failed to upload image');
+        }
+      }
+
+      const productData = {
+        name_en: productForm.name_en,
+        name_ar: productForm.name_ar,
+        description_en: productForm.description_en || null,
+        description_ar: productForm.description_ar || null,
+        price: parseFloat(productForm.price),
+        original_price: productForm.original_price ? parseFloat(productForm.original_price) : null,
+        category: productForm.category,
+        image_url: imageUrl || null,
+        in_stock: productForm.in_stock
+      };
+
       if (editingProduct) {
-        const {
-          error
-        } = await supabase.from('products').update(productData).eq('id', editingProduct.id);
+        const { error } = await supabase.from('products').update(productData).eq('id', editingProduct.id);
         if (error) throw error;
         toast({
           title: language === 'en' ? 'Product updated!' : 'تم تحديث المنتج!'
         });
       } else {
-        const {
-          error
-        } = await supabase.from('products').insert(productData);
+        const { error } = await supabase.from('products').insert(productData);
         if (error) throw error;
         toast({
           title: language === 'en' ? 'Product created!' : 'تم إنشاء المنتج!'
@@ -218,6 +275,8 @@ const Admin: React.FC = () => {
         description: errorMessage,
         variant: 'destructive'
       });
+    } finally {
+      setUploadingImage(false);
     }
   };
   const resetProductForm = () => {
@@ -233,6 +292,8 @@ const Admin: React.FC = () => {
       image_url: '',
       in_stock: true
     });
+    setImageFile(null);
+    setImagePreview(null);
   };
   const editProduct = (product: Product) => {
     setEditingProduct(product);
@@ -247,6 +308,8 @@ const Admin: React.FC = () => {
       image_url: product.image_url || '',
       in_stock: product.in_stock ?? true
     });
+    setImagePreview(product.image_url || null);
+    setImageFile(null);
     setProductDialogOpen(true);
   };
   const deleteProduct = async (id: string) => {
@@ -721,29 +784,60 @@ const Admin: React.FC = () => {
                       })} />
                       </div>
                       <div className="space-y-2">
-                        <Label>Category</Label>
-                        <Input value={productForm.category} onChange={e => setProductForm({
-                        ...productForm,
-                        category: e.target.value
-                      })} required />
+                        <Label>{language === 'en' ? 'Category' : 'الفئة'}</Label>
+                        <Select value={productForm.category} onValueChange={value => setProductForm({
+                          ...productForm,
+                          category: value
+                        })}>
+                          <SelectTrigger>
+                            <SelectValue placeholder={language === 'en' ? 'Select category' : 'اختر الفئة'} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableCategories.map(cat => (
+                              <SelectItem key={cat.value} value={cat.value}>
+                                {language === 'en' ? cat.labelEn : cat.labelAr}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label>Image URL</Label>
-                      <Input value={productForm.image_url} onChange={e => setProductForm({
-                      ...productForm,
-                      image_url: e.target.value
-                    })} />
+                      <Label>{language === 'en' ? 'Product Image' : 'صورة المنتج'}</Label>
+                      <div className="flex items-center gap-4">
+                        <label className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary hover:bg-muted/50 transition-colors">
+                          <Upload className="w-5 h-5 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">
+                            {imageFile ? imageFile.name : (language === 'en' ? 'Choose image file' : 'اختر ملف الصورة')}
+                          </span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="hidden"
+                          />
+                        </label>
+                        {imagePreview && (
+                          <img src={imagePreview} alt="Preview" className="w-16 h-16 rounded-lg object-cover" />
+                        )}
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <Switch checked={productForm.in_stock} onCheckedChange={checked => setProductForm({
                       ...productForm,
                       in_stock: checked
                     })} />
-                      <Label>In Stock</Label>
+                      <Label>{language === 'en' ? 'In Stock' : 'متوفر'}</Label>
                     </div>
-                    <Button type="submit" variant="neon-filled" className="w-full">
-                      {editingProduct ? language === 'en' ? 'Update' : 'تحديث' : language === 'en' ? 'Create' : 'إنشاء'}
+                    <Button type="submit" variant="neon-filled" className="w-full" disabled={uploadingImage}>
+                      {uploadingImage ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          {language === 'en' ? 'Uploading...' : 'جاري الرفع...'}
+                        </>
+                      ) : (
+                        editingProduct ? (language === 'en' ? 'Update' : 'تحديث') : (language === 'en' ? 'Create' : 'إنشاء')
+                      )}
                     </Button>
                   </form>
                 </DialogContent>
