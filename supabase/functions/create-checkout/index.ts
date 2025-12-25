@@ -1,5 +1,4 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
 
 const corsHeaders = {
@@ -62,11 +61,7 @@ serve(async (req) => {
         couponCode: couponCode || '',
         couponDiscount: couponDiscount?.toString() || '0',
       },
-      customer_email: undefined,
       billing_address_collection: 'auto',
-      phone_number_collection: {
-        enabled: true,
-      },
     };
 
     // Apply discount if coupon exists
