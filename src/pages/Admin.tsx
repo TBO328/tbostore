@@ -15,6 +15,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import sarSymbol from '@/assets/sar-symbol.png';
 import type { Tables } from '@/integrations/supabase/types';
 type Product = Tables<'products'>;
 type Coupon = Tables<'coupons'>;
@@ -60,8 +62,28 @@ const Admin: React.FC = () => {
     t
   } = useLanguage();
   const {
-    formatPrice
+    formatPrice,
+    currency
   } = useCurrency();
+  const { theme } = useTheme();
+  
+  // SAR symbol filter based on theme
+  const symbolFilter = theme === 'light' 
+    ? 'brightness(0)' 
+    : 'brightness(0) invert(1)';
+  
+  // Custom format price with SAR symbol component
+  const formatPriceWithSymbol = (price: number) => {
+    if (currency === 'SAR') {
+      return (
+        <span className="flex items-center gap-1">
+          {price.toFixed(2)}
+          <img src={sarSymbol} alt="SAR" className="inline-block h-4 w-4" style={{ filter: symbolFilter }} />
+        </span>
+      );
+    }
+    return <span>{formatPrice(price)}</span>;
+  };
   const [products, setProducts] = useState<Product[]>([]);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -625,7 +647,7 @@ const Admin: React.FC = () => {
                 {language === 'en' ? 'Revenue' : 'الإيرادات'}
               </span>
             </div>
-            <p className="text-2xl font-bold text-foreground">{formatPrice(totalRevenue)}</p>
+            <p className="text-2xl font-bold text-foreground">{formatPriceWithSymbol(totalRevenue)}</p>
             <p className="text-xs text-muted-foreground">{language === 'en' ? 'Total Sales' : 'إجمالي المبيعات'}</p>
           </motion.div>
         </div>
@@ -685,7 +707,7 @@ const Admin: React.FC = () => {
                         <p className="text-muted-foreground">{order.customer_phone}</p>
                       </div>
                       <div className="flex items-center gap-4 mt-2">
-                        <span className="text-primary font-bold">{formatPrice(order.total_amount)}</span>
+                        <span className="text-primary font-bold">{formatPriceWithSymbol(order.total_amount)}</span>
                         <span className="text-sm text-muted-foreground">• {order.items.length} {language === 'en' ? 'items' : 'منتجات'}</span>
                         <span className="text-xs text-muted-foreground">
                           {new Date(order.created_at).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
@@ -885,9 +907,9 @@ const Admin: React.FC = () => {
                         product.category === 'Discord' ? 'ديسكورد' : product.category
                       ) : product.category}</p>
                       <div className="flex items-center gap-3">
-                        <span className="text-primary font-bold">{formatPrice(Number(product.price))}</span>
+                        <span className="text-primary font-bold">{formatPriceWithSymbol(Number(product.price))}</span>
                         {product.original_price && (
-                          <span className="text-muted-foreground text-sm line-through">{formatPrice(Number(product.original_price))}</span>
+                          <span className="text-muted-foreground text-sm line-through">{formatPriceWithSymbol(Number(product.original_price))}</span>
                         )}
                       </div>
                     </div>
@@ -1117,7 +1139,7 @@ const Admin: React.FC = () => {
                         <p className="font-medium">{language === 'ar' ? item.nameAr : item.name}</p>
                         <p className="text-sm text-muted-foreground">x{item.quantity}</p>
                       </div>
-                      <p className="font-medium">{formatPrice(item.price * item.quantity)}</p>
+                      <p className="font-medium">{formatPriceWithSymbol(item.price * item.quantity)}</p>
                     </div>)}
                 </div>
               </div>
@@ -1132,7 +1154,7 @@ const Admin: React.FC = () => {
                 </div>
                 <div className="flex justify-between text-lg font-bold">
                   <span>{t('totalPrice')}</span>
-                  <span className="text-primary">{formatPrice(selectedOrder.total_amount)}</span>
+                  <span className="text-primary">{formatPriceWithSymbol(selectedOrder.total_amount)}</span>
                 </div>
               </div>
             </div>}
