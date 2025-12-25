@@ -21,7 +21,7 @@ export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const formatPrice = (priceInSAR: number): string => {
     if (currency === 'SAR') {
-      return `${priceInSAR.toFixed(2)} ر.س`;
+      return `${priceInSAR.toFixed(2)}`;
     } else {
       const priceInUSD = priceInSAR / EXCHANGE_RATE;
       return `$${priceInUSD.toFixed(2)}`;
